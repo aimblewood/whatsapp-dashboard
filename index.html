@@ -44,6 +44,28 @@
             font-weight: 500;
         }
 
+        .connection-status {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        .connection-status.disconnected {
+            background: #f44336;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         .settings-btn {
             position: absolute;
             right: 15px;
@@ -85,6 +107,7 @@
             border-bottom: 1px solid #f0f0f0;
             cursor: pointer;
             transition: background-color 0.2s;
+            position: relative;
         }
 
         .conversation-item:hover {
@@ -93,6 +116,15 @@
 
         .conversation-item.active {
             background-color: #e3f2fd;
+        }
+
+        .conversation-item.new-message {
+            animation: flash 1s ease-in-out;
+        }
+
+        @keyframes flash {
+            0%, 100% { background-color: inherit; }
+            50% { background-color: #e8f5e8; }
         }
 
         .avatar {
@@ -107,6 +139,7 @@
             font-size: 16px;
             color: white;
             flex-shrink: 0;
+            position: relative;
         }
 
         .avatar img {
@@ -114,6 +147,19 @@
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
+        }
+
+        .typing-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background: #25d366;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: none;
+            animation: pulse 1.5s infinite;
         }
 
         .conversation-info {
@@ -211,6 +257,12 @@
             border-radius: 8px;
             word-wrap: break-word;
             position: relative;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .message.customer {
@@ -400,6 +452,7 @@
     <div class="dashboard">
         <div class="sidebar" id="sidebar">
             <div class="header">
+                <div class="connection-status" id="connectionStatus" title="Connection status"></div>
                 <h1>Covase WhatsApp Dashboard</h1>
                 <button class="settings-btn" onclick="showSettings()">⚙️</button>
             </div>
@@ -448,6 +501,8 @@
         let conversations = [];
         let selectedConversation = null;
         let whatsappConfig = {};
+        let realtimeChannel = null;
+        let conversationUpdateTimeout = null;
 
         // Initialize the dashboard
         async function initializeDashboard() {
@@ -473,15 +528,30 @@
                 const { createClient } = supabase;
                 supabaseClient = createClient(supabaseUrl, supabaseKey);
                 
+                // Update connection status
+                updateConnectionStatus(true);
+                
                 // Load conversations
                 await loadConversations();
                 
-                // Set up real-time subscription
-                setupRealtimeSubscription();
+                // Set up real-time subscription with enhanced features
+                setupEnhancedRealtimeSubscription();
                 
             } catch (error) {
                 console.error('Failed to initialize dashboard:', error);
+                updateConnectionStatus(false);
                 showSettings();
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            if (connected) {
+                status.classList.remove('disconnected');
+                status.title = 'Connected - Real-time updates active';
+            } else {
+                status.classList.add('disconnected');
+                status.title = 'Disconnected - Attempting to reconnect...';
             }
         }
 
@@ -520,7 +590,27 @@
 
         async function loadConversations() {
             try {
-                // Get latest message for each customer
+                // Get latest message for each customer with a more efficient query
+                const { data, error } = await supabaseClient
+                    .rpc('get_latest_conversations');
+
+                if (error) {
+                    // Fallback to manual grouping if RPC doesn't exist
+                    return await loadConversationsFallback();
+                }
+
+                conversations = data.sort((a, b) => new Date(b.last_timestamp) - new Date(a.last_timestamp));
+                renderConversations();
+
+            } catch (error) {
+                console.error('Error loading conversations:', error);
+                // Try fallback method
+                await loadConversationsFallback();
+            }
+        }
+
+        async function loadConversationsFallback() {
+            try {
                 const { data, error } = await supabaseClient
                     .from('whatsapp_messages')
                     .select('*')
@@ -558,6 +648,7 @@
                 console.error('Error loading conversations:', error);
                 document.getElementById('conversations').innerHTML = 
                     '<div class="loading">Error loading conversations</div>';
+                updateConnectionStatus(false);
             }
         }
 
@@ -578,6 +669,7 @@
                              <span style="display: none;">${getInitials(conv.customer_name)}</span>` :
                             getInitials(conv.customer_name)
                         }
+                        <div class="typing-indicator" id="typing-${conv.phone_number}"></div>
                     </div>
                     <div class="conversation-info">
                         <div class="customer-name">${conv.customer_name}</div>
@@ -601,7 +693,10 @@
             document.querySelectorAll('.conversation-item').forEach(item => {
                 item.classList.remove('active');
             });
-            document.querySelector(`[data-phone="${phoneNumber}"]`).classList.add('active');
+            const activeItem = document.querySelector(`[data-phone="${phoneNumber}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
 
             // Load messages for this conversation
             await loadMessages(phoneNumber);
@@ -618,10 +713,13 @@
                 if (error) throw error;
 
                 const conversation = conversations.find(c => c.phone_number === phoneNumber);
-                renderChatArea(conversation, data);
+                if (conversation) {
+                    renderChatArea(conversation, data);
+                }
 
             } catch (error) {
                 console.error('Error loading messages:', error);
+                updateConnectionStatus(false);
             }
         }
 
@@ -644,7 +742,7 @@
                 </div>
                 <div class="messages" id="messages">
                     ${messages.map(msg => `
-                        <div class="message ${msg.sender_type}">
+                        <div class="message ${msg.sender_type}" data-message-id="${msg.id}">
                             <div class="message-text">${msg.message_text}</div>
                             <div class="message-time-stamp">${formatTime(msg.timestamp)}</div>
                         </div>
@@ -652,39 +750,178 @@
                 </div>
             `;
 
-            // Scroll to bottom
+            // Scroll to bottom smoothly
             const messagesContainer = document.getElementById('messages');
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function setupRealtimeSubscription() {
+        function setupEnhancedRealtimeSubscription() {
             if (!supabaseClient) return;
 
-            supabaseClient
-                .channel('whatsapp_messages')
+            // Clean up existing subscription
+            if (realtimeChannel) {
+                realtimeChannel.unsubscribe();
+            }
+
+            realtimeChannel = supabaseClient
+                .channel('whatsapp_realtime')
                 .on('postgres_changes', 
                     { event: 'INSERT', schema: 'public', table: 'whatsapp_messages' }, 
                     (payload) => {
-                        console.log('New message received:', payload);
+                        console.log('🔥 Real-time: New message received:', payload);
                         handleNewMessage(payload.new);
                     }
                 )
-                .subscribe();
+                .on('postgres_changes',
+                    { event: 'UPDATE', schema: 'public', table: 'whatsapp_messages' },
+                    (payload) => {
+                        console.log('🔄 Real-time: Message updated:', payload);
+                        handleMessageUpdate(payload.new);
+                    }
+                )
+                .subscribe((status) => {
+                    console.log('📡 Real-time subscription status:', status);
+                    updateConnectionStatus(status === 'SUBSCRIBED');
+                });
+
+            // Set up periodic lightweight health check (every 30 seconds)
+            setInterval(async () => {
+                try {
+                    const { error } = await supabaseClient
+                        .from('whatsapp_messages')
+                        .select('id')
+                        .limit(1);
+                    
+                    if (!error) {
+                        updateConnectionStatus(true);
+                    }
+                } catch (e) {
+                    console.warn('Connection health check failed:', e);
+                    updateConnectionStatus(false);
+                }
+            }, 30000);
         }
 
         function handleNewMessage(newMessage) {
-            // Update conversations list
-            loadConversations();
+            // Flash animation for new message
+            const conversationItem = document.querySelector(`[data-phone="${newMessage.phone_number}"]`);
+            if (conversationItem) {
+                conversationItem.classList.add('new-message');
+                setTimeout(() => {
+                    conversationItem.classList.remove('new-message');
+                }, 1000);
+            }
+
+            // Update conversation in real-time
+            updateConversationInPlace(newMessage);
             
-            // If this message is for the currently selected conversation, update chat
+            // If this message is for the currently selected conversation, add to chat immediately
             if (selectedConversation === newMessage.phone_number) {
-                loadMessages(newMessage.phone_number);
+                addMessageToChat(newMessage);
+            }
+
+            // Show typing indicator briefly for AI responses
+            if (newMessage.sender_type === 'customer') {
+                showTypingIndicator(newMessage.phone_number);
+            }
+        }
+
+        function handleMessageUpdate(updatedMessage) {
+            // Handle message status updates (delivered, read, etc.)
+            if (selectedConversation === updatedMessage.phone_number) {
+                updateMessageInChat(updatedMessage);
+            }
+        }
+
+        function updateConversationInPlace(newMessage) {
+            // Debounce conversation list updates
+            clearTimeout(conversationUpdateTimeout);
+            conversationUpdateTimeout = setTimeout(() => {
+                // Find and update the specific conversation
+                const convIndex = conversations.findIndex(c => c.phone_number === newMessage.phone_number);
+                
+                if (convIndex >= 0) {
+                    // Update existing conversation
+                    conversations[convIndex] = {
+                        ...conversations[convIndex],
+                        last_message: newMessage.message_text,
+                        last_timestamp: newMessage.timestamp,
+                        last_sender: newMessage.sender_type,
+                        customer_name: newMessage.customer_name || conversations[convIndex].customer_name,
+                        customer_avatar_url: newMessage.customer_avatar_url || conversations[convIndex].customer_avatar_url
+                    };
+                    
+                    // Move to top
+                    const updated = conversations.splice(convIndex, 1)[0];
+                    conversations.unshift(updated);
+                } else {
+                    // Add new conversation
+                    conversations.unshift({
+                        phone_number: newMessage.phone_number,
+                        customer_name: newMessage.customer_name || newMessage.phone_number,
+                        wa_id: newMessage.wa_id || newMessage.phone_number,
+                        customer_avatar_url: newMessage.customer_avatar_url,
+                        last_message: newMessage.message_text,
+                        last_timestamp: newMessage.timestamp,
+                        last_sender: newMessage.sender_type,
+                        thread_id: newMessage.thread_id,
+                        unread_count: 0
+                    });
+                }
+                
+                renderConversations();
+            }, 100); // Small debounce to handle rapid messages
+        }
+
+        function addMessageToChat(message) {
+            const messagesContainer = document.getElementById('messages');
+            if (!messagesContainer) return;
+
+            // Check if message already exists
+            if (document.querySelector(`[data-message-id="${message.id}"]`)) {
+                return;
+            }
+
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${message.sender_type}`;
+            messageElement.setAttribute('data-message-id', message.id);
+            messageElement.innerHTML = `
+                <div class="message-text">${message.message_text}</div>
+                <div class="message-time-stamp">${formatTime(message.timestamp)}</div>
+            `;
+
+            messagesContainer.appendChild(messageElement);
+            
+            // Smooth scroll to new message
+            messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        function updateMessageInChat(message) {
+            const messageElement = document.querySelector(`[data-message-id="${message.id}"]`);
+            if (messageElement) {
+                messageElement.querySelector('.message-text').textContent = message.message_text;
+                messageElement.querySelector('.message-time-stamp').textContent = formatTime(message.timestamp);
+            }
+        }
+
+        function showTypingIndicator(phoneNumber) {
+            const indicator = document.getElementById(`typing-${phoneNumber}`);
+            if (indicator) {
+                indicator.style.display = 'block';
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 3000);
             }
         }
 
         function getInitials(name) {
-            if (!name) return '?';
-            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            if (!name || name.includes('+')) return '👤';
+            const parts = name.trim().split(/\s+/);
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return parts[0][0].toUpperCase();
         }
 
         function getAvatarColor(name) {
@@ -729,7 +966,7 @@
             const diffMs = new Date() - new Date(lastTimestamp);
             const diffMinutes = diffMs / (1000 * 60);
             
-            if (diffMinutes < 5) return 'Active now';
+            if (diffMinutes < 1) return 'Active now';
             if (diffMinutes < 60) return `Active ${Math.floor(diffMinutes)} minutes ago`;
             
             const diffHours = diffMs / (1000 * 60 * 60);
@@ -755,6 +992,13 @@
                 }
             });
         }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (realtimeChannel) {
+                realtimeChannel.unsubscribe();
+            }
+        });
 
         // Load Supabase library and initialize
         const script = document.createElement('script');
