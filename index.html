@@ -760,6 +760,9 @@
                         </div>
                     </div>
                     <div class="conversation-meta">
+                        ${(conv.unread_count && conv.unread_count > 0) ? 
+                            `<div class="unread-count">${conv.unread_count}</div>` : ''
+                        }
                         <div class="message-time">${formatTime(conv.last_timestamp)}</div>
                         <div class="status-indicator ${getOnlineStatus(conv.last_timestamp)}"></div>
                     </div>
@@ -769,6 +772,9 @@
 
         async function selectConversation(phoneNumber) {
             selectedConversation = phoneNumber;
+            
+            // Mark conversation as read
+            markConversationAsRead(phoneNumber);
             
             // Update active state
             document.querySelectorAll('.conversation-item').forEach(item => {
@@ -1015,12 +1021,15 @@
             }
 
             realtimeChannel = supabaseClient
-                .channel('whatsapp_realtime')
+                .channel('whatsapp_realtime_enhanced')
                 .on('postgres_changes', 
                     { event: 'INSERT', schema: 'public', table: 'whatsapp_messages' }, 
                     (payload) => {
                         console.log('🔥 Real-time: New message received:', payload);
-                        handleNewMessage(payload.new);
+                        // Add small delay to ensure proper ordering
+                        setTimeout(() => {
+                            handleNewMessage(payload.new);
+                        }, 100);
                     }
                 )
                 .on('postgres_changes',
@@ -1033,9 +1042,20 @@
                 .subscribe((status) => {
                     console.log('📡 Real-time subscription status:', status);
                     updateConnectionStatus(status === 'SUBSCRIBED');
+                    
+                    if (status === 'SUBSCRIBED') {
+                        console.log('✅ Real-time updates are now active!');
+                    } else if (status === 'CHANNEL_ERROR') {
+                        console.error('❌ Real-time subscription failed');
+                        // Try to reconnect after 5 seconds
+                        setTimeout(() => {
+                            console.log('🔄 Attempting to reconnect...');
+                            setupEnhancedRealtimeSubscription();
+                        }, 5000);
+                    }
                 });
 
-            // Set up periodic lightweight health check (every 30 seconds)
+            // Enhanced health check with connection recovery
             setInterval(async () => {
                 try {
                     const { error } = await supabaseClient
@@ -1045,15 +1065,25 @@
                     
                     if (!error) {
                         updateConnectionStatus(true);
+                    } else {
+                        throw error;
                     }
                 } catch (e) {
-                    console.warn('Connection health check failed:', e);
+                    console.warn('🚨 Connection health check failed:', e);
                     updateConnectionStatus(false);
+                    
+                    // Try to reconnect realtime subscription
+                    if (realtimeChannel) {
+                        console.log('🔄 Reconnecting real-time subscription...');
+                        setupEnhancedRealtimeSubscription();
+                    }
                 }
             }, 30000);
         }
 
         function handleNewMessage(newMessage) {
+            console.log('📥 Processing new message:', newMessage);
+            
             // Flash animation for new message
             const conversationItem = document.querySelector(`[data-phone="${newMessage.phone_number}"]`);
             if (conversationItem) {
@@ -1063,15 +1093,20 @@
                 }, 1000);
             }
 
-            // Update conversation in real-time
+            // Update conversation in real-time and increment unread if not current conversation
             updateConversationInPlace(newMessage);
             
             // If this message is for the currently selected conversation, add to chat immediately
             if (selectedConversation === newMessage.phone_number) {
                 addMessageToChat(newMessage);
+                // Mark as read since user is viewing this conversation
+                markConversationAsRead(newMessage.phone_number);
+            } else {
+                // Increment unread count for other conversations
+                incrementUnreadCount(newMessage.phone_number);
             }
 
-            // Show typing indicator briefly for AI responses
+            // Show typing indicator briefly for customer messages (AI might respond)
             if (newMessage.sender_type === 'customer') {
                 showTypingIndicator(newMessage.phone_number);
             }
@@ -1122,6 +1157,22 @@
                 
                 renderConversations();
             }, 100); // Small debounce to handle rapid messages
+        }
+
+        function incrementUnreadCount(phoneNumber) {
+            const convIndex = conversations.findIndex(c => c.phone_number === phoneNumber);
+            if (convIndex >= 0) {
+                conversations[convIndex].unread_count = (conversations[convIndex].unread_count || 0) + 1;
+                renderConversations();
+            }
+        }
+
+        function markConversationAsRead(phoneNumber) {
+            const convIndex = conversations.findIndex(c => c.phone_number === phoneNumber);
+            if (convIndex >= 0) {
+                conversations[convIndex].unread_count = 0;
+                renderConversations();
+            }
         }
 
         function addMessageToChat(message) {
