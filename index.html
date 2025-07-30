@@ -36,44 +36,41 @@
             color: white;
             padding: 20px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
             font-size: 18px;
-            margin-bottom: 5px;
+            font-weight: 500;
         }
 
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .filters {
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
-            background: #fafafa;
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 6px 12px;
+        .settings-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
             border: none;
-            border-radius: 20px;
-            font-size: 12px;
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
             cursor: pointer;
-            background: #e0e0e0;
-            color: #666;
-            transition: all 0.2s ease;
+            width: 36px;
+            height: 36px;
         }
 
-        .filter-btn.active {
-            background: #25d366;
-            color: white;
+        .search-bar {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
         }
 
         .conversations {
@@ -81,33 +78,13 @@
             overflow-y: auto;
         }
 
-        .loading {
+        .conversation-item {
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #25d366;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .conversation-item {
             padding: 15px;
             border-bottom: 1px solid #f0f0f0;
             cursor: pointer;
-            transition: background-color 0.2s ease;
-            position: relative;
+            transition: background-color 0.2s;
         }
 
         .conversation-item:hover {
@@ -116,951 +93,676 @@
 
         .conversation-item.active {
             background-color: #e3f2fd;
-            border-left: 4px solid #2196f3;
-        }
-
-        .conversation-item.needs-human {
-            border-left: 4px solid #f44336;
-            background-color: #fff5f5;
-        }
-
-        .conversation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .customer-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
         }
 
         .avatar {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: #25d366;
+            margin-right: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
             color: white;
-            font-weight: bold;
-            font-size: 14px;
+            flex-shrink: 0;
         }
 
-        .customer-details h3 {
-            font-size: 14px;
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .conversation-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            font-size: 16px;
             color: #333;
             margin-bottom: 2px;
         }
 
-        .customer-details p {
+        .phone-number {
             font-size: 12px;
             color: #666;
-        }
-
-        .conversation-status {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .unread-badge {
-            background: #25d366;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
+            margin-bottom: 4px;
         }
 
         .last-message {
-            font-size: 13px;
+            font-size: 14px;
             color: #666;
-            margin: 5px 0;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            white-space: nowrap;
             overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .message-time {
-            font-size: 11px;
+            font-size: 12px;
             color: #999;
+            flex-shrink: 0;
+            margin-left: 8px;
         }
 
         .chat-area {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: white;
+            background: #e5ddd5;
         }
 
         .chat-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #e0e0e0;
-            background: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chat-customer-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .chat-controls {
-            display: flex;
-            gap: 10px;
-        }
-
-        .control-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .control-btn.ai-active {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .control-btn.human-mode {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .control-btn.needs-human {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f0f2f5;
-        }
-
-        .message {
-            display: flex;
-            margin-bottom: 15px;
-        }
-
-        .message.customer {
-            justify-content: flex-start;
-        }
-
-        .message.ai, .message.human {
-            justify-content: flex-end;
-        }
-
-        .message-bubble {
-            max-width: 70%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            position: relative;
-        }
-
-        .message.customer .message-bubble {
-            background: white;
-            border: 1px solid #e0e0e0;
-            color: #333;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message.ai .message-bubble {
-            background: #dcf8c6;
-            color: #333;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message.human .message-bubble {
-            background: #ffd54f;
-            color: #333;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message-text {
-            font-size: 14px;
-            line-height: 1.4;
-            margin-bottom: 5px;
-        }
-
-        .message-meta {
-            font-size: 11px;
-            color: #666;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .sender-type {
-            font-weight: bold;
-        }
-
-        .message-input-area {
-            padding: 15px 20px;
-            background: white;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .message-input {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-
-        .input-field {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #e0e0e0;
-            border-radius: 24px;
-            font-size: 14px;
-            outline: none;
-            resize: none;
-            min-height: 24px;
-            max-height: 100px;
-            font-family: inherit;
-        }
-
-        .input-field:focus {
-            border-color: #25d366;
-        }
-
-        .send-btn {
-            width: 48px;
-            height: 48px;
-            border: none;
-            border-radius: 50%;
             background: #25d366;
             color: white;
-            cursor: pointer;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #128c7e;
+        }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s ease;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
         }
 
-        .send-btn:hover {
-            background: #128c7e;
+        .chat-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
-        .send-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .chat-info h2 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .chat-info .status {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .message.customer {
+            background: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .message.ai {
+            background: #dcf8c6;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message-time-stamp {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+            text-align: right;
         }
 
         .empty-state {
-            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            height: 100%;
             color: #666;
             text-align: center;
         }
 
-        .empty-state-icon {
-            width: 80px;
-            height: 80px;
-            background: #f0f0f0;
-            border-radius: 50%;
+        .empty-state h3 {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .loading {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
-            font-size: 32px;
-        }
-
-        .input-hint {
-            font-size: 12px;
+            height: 100%;
+            font-size: 16px;
             color: #666;
-            margin-top: 8px;
-            text-align: center;
         }
 
-        .error {
-            color: #f44336;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .success {
-            color: #4caf50;
-            text-align: center;
-            padding: 10px;
-            background: #e8f5e8;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-
-        .config-panel {
+        .setup-modal {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
         }
 
-        .config-content {
+        .setup-form {
             background: white;
             padding: 30px;
-            border-radius: 8px;
-            max-width: 500px;
-            width: 90%;
+            border-radius: 10px;
+            width: 400px;
+            max-width: 90vw;
         }
 
-        .config-content h2 {
+        .setup-form h2 {
             margin-bottom: 20px;
             color: #333;
+            text-align: center;
         }
 
-        .config-content label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .config-content input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        .form-group {
             margin-bottom: 15px;
         }
 
-        .config-content button {
-            background: #25d366;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
         }
 
-        .config-content button.secondary {
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: #25d366;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #128c7e;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: auto;
+        }
+
+        .status-indicator.online {
+            background: #25d366;
+        }
+
+        .status-indicator.away {
+            background: #ffa726;
+        }
+
+        .status-indicator.offline {
             background: #666;
         }
 
+        .conversation-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            min-width: 60px;
+        }
+
+        .unread-count {
+            background: #25d366;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        /* Scrollbar Styling */
+        .conversations::-webkit-scrollbar,
+        .messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .conversations::-webkit-scrollbar-track,
+        .messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .conversations::-webkit-scrollbar-thumb,
+        .messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .conversations::-webkit-scrollbar-thumb:hover,
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
         @media (max-width: 768px) {
-            .dashboard {
-                flex-direction: column;
-            }
-            
             .sidebar {
                 width: 100%;
-                height: 50vh;
+                display: none;
+            }
+            
+            .sidebar.show {
+                display: flex;
             }
             
             .chat-area {
-                height: 50vh;
+                display: none;
+            }
+            
+            .chat-area.show {
+                display: flex;
             }
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
-        <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="header">
-                <h1>WhatsApp Business</h1>
-                <p>Direct Supabase Integration</p>
+                <h1>Covase WhatsApp Dashboard</h1>
+                <button class="settings-btn" onclick="showSettings()">⚙️</button>
             </div>
-
-            <div class="filters">
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">All Chats</button>
-                    <button class="filter-btn" data-filter="needs-human">Needs Human</button>
-                    <button class="filter-btn" data-filter="recent">Recent</button>
-                    <button class="filter-btn" onclick="showConfig()">⚙️ Config</button>
-                </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search conversations..." id="searchInput" oninput="filterConversations()">
             </div>
-
             <div class="conversations" id="conversations">
-                <div class="loading">
-                    <div class="spinner"></div>
-                </div>
+                <div class="loading">Loading conversations...</div>
             </div>
         </div>
 
-        <!-- Chat Area -->
-        <div class="chat-area">
-            <div class="empty-state" id="empty-state">
-                <div class="empty-state-icon">💬</div>
-                <h3>Select a conversation</h3>
-                <p>Choose a conversation from the sidebar to view messages and respond</p>
-                <div id="connection-status" style="margin-top: 20px; font-size: 12px; color: #999;"></div>
-            </div>
-
-            <div class="chat-header" id="chat-header" style="display: none;">
-                <div class="chat-customer-info">
-                    <div class="avatar" id="chat-avatar">C</div>
-                    <div>
-                        <h3 id="chat-customer-name">Customer</h3>
-                        <p id="chat-customer-phone">+1234567890</p>
-                    </div>
-                </div>
-                <div class="chat-controls">
-                    <button class="control-btn ai-active" id="ai-status">🤖 AI Active</button>
-                    <button class="control-btn" id="refresh-btn">🔄 Refresh</button>
-                </div>
-            </div>
-
-            <div class="messages-container" id="messages" style="display: none;"></div>
-
-            <div class="message-input-area" id="input-area" style="display: none;">
-                <div class="message-input">
-                    <textarea 
-                        class="input-field" 
-                        id="message-input" 
-                        placeholder="Type your message..."
-                        rows="1"></textarea>
-                    <button class="send-btn" id="send-btn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="input-hint">💡 Messages sent from here will disable AI and notify via WhatsApp</div>
+        <div class="chat-area" id="chatArea">
+            <div class="empty-state">
+                <h3>Welcome to your WhatsApp Dashboard</h3>
+                <p>Select a conversation to view messages</p>
             </div>
         </div>
     </div>
 
-    <!-- Configuration Panel -->
-    <div class="config-panel" id="config-panel" style="display: none;">
-        <div class="config-content">
-            <h2>Supabase Configuration</h2>
-            <label>Supabase URL:</label>
-            <input type="text" id="supabase-url" placeholder="https://your-project.supabase.co">
-            
-            <label>Supabase Anon Key:</label>
-            <input type="text" id="supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
-            
-            <label>WhatsApp Phone Number ID:</label>
-            <input type="text" id="whatsapp-phone-id" value="755023434351635">
-            
-            <label>WhatsApp API Token:</label>
-            <input type="text" id="whatsapp-token" placeholder="Your WhatsApp API token">
-            
-            <button onclick="saveConfig()">Save Configuration</button>
-            <button class="secondary" onclick="hideConfig()">Cancel</button>
+    <!-- Setup Modal -->
+    <div class="setup-modal" id="setupModal" style="display: none;">
+        <div class="setup-form">
+            <h2>Dashboard Setup</h2>
+            <div class="form-group">
+                <label>Supabase URL:</label>
+                <input type="text" id="supabaseUrl" placeholder="https://your-project.supabase.co">
+            </div>
+            <div class="form-group">
+                <label>Supabase API Key:</label>
+                <input type="text" id="supabaseKey" placeholder="Your anon public key">
+            </div>
+            <div class="form-group">
+                <label>WhatsApp Phone Number ID:</label>
+                <input type="text" id="phoneNumberId" placeholder="755023434351635">
+            </div>
+            <div class="form-group">
+                <label>WhatsApp Access Token:</label>
+                <input type="text" id="accessToken" placeholder="Your WhatsApp access token">
+            </div>
+            <button class="btn" onclick="saveSettings()">Connect</button>
         </div>
     </div>
 
     <script>
-        // Configuration
-        let config = {
-            supabaseUrl: '',
-            supabaseKey: '',
-            whatsappPhoneId: '755023434351635',
-            whatsappToken: ''
-        };
-
-        // Dashboard State
-        let currentConversation = null;
+        let supabaseClient = null;
         let conversations = [];
-        let currentFilter = 'all';
-        let refreshInterval;
+        let selectedConversation = null;
+        let whatsappConfig = {};
 
-        // Initialize Dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            loadConfig();
-            if (!config.supabaseUrl || !config.supabaseKey) {
-                showConfig();
-            } else {
-                initializeEventListeners();
-                loadConversations();
-                refreshInterval = setInterval(loadConversations, 30000);
-            }
-        });
+        // Initialize the dashboard
+        async function initializeDashboard() {
+            // Check for saved credentials
+            const supabaseUrl = localStorage.getItem('supabase_url');
+            const supabaseKey = localStorage.getItem('supabase_key');
+            const phoneNumberId = localStorage.getItem('phone_number_id');
+            const accessToken = localStorage.getItem('access_token');
 
-        function loadConfig() {
-            const saved = localStorage.getItem('whatsapp-dashboard-config');
-            if (saved) {
-                config = {...config, ...JSON.parse(saved)};
-            }
-        }
-
-        function saveConfig() {
-            config.supabaseUrl = document.getElementById('supabase-url').value;
-            config.supabaseKey = document.getElementById('supabase-key').value;
-            config.whatsappPhoneId = document.getElementById('whatsapp-phone-id').value;
-            config.whatsappToken = document.getElementById('whatsapp-token').value;
-            
-            localStorage.setItem('whatsapp-dashboard-config', JSON.stringify(config));
-            hideConfig();
-            
-            initializeEventListeners();
-            loadConversations();
-            if (!refreshInterval) {
-                refreshInterval = setInterval(loadConversations, 30000);
-            }
-        }
-
-        function showConfig() {
-            document.getElementById('config-panel').style.display = 'flex';
-            document.getElementById('supabase-url').value = config.supabaseUrl;
-            document.getElementById('supabase-key').value = config.supabaseKey;
-            document.getElementById('whatsapp-phone-id').value = config.whatsappPhoneId;
-            document.getElementById('whatsapp-token').value = config.whatsappToken;
-        }
-
-        function hideConfig() {
-            document.getElementById('config-panel').style.display = 'none';
-        }
-
-        function initializeEventListeners() {
-            // Filter buttons
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                if (btn.textContent.includes('Config')) return;
-                btn.addEventListener('click', function() {
-                    document.querySelector('.filter-btn.active').classList.remove('active');
-                    this.classList.add('active');
-                    currentFilter = this.dataset.filter;
-                    renderConversations();
-                });
-            });
-
-            // Send message
-            document.getElementById('send-btn').addEventListener('click', sendMessage);
-            document.getElementById('message-input').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
-
-            // Refresh
-            document.getElementById('refresh-btn').addEventListener('click', function() {
-                if (currentConversation) {
-                    loadConversationMessages(currentConversation.phone_number);
-                }
-                loadConversations();
-            });
-        }
-
-        // Load conversations from Supabase
-        async function loadConversations() {
-            if (!config.supabaseUrl || !config.supabaseKey) {
-                updateConnectionStatus('Please configure Supabase settings');
+            if (!supabaseUrl || !supabaseKey) {
+                showSettings();
                 return;
             }
 
+            // Store WhatsApp config
+            whatsappConfig = {
+                phoneNumberId: phoneNumberId,
+                accessToken: accessToken
+            };
+
             try {
-                updateConnectionStatus('Loading conversations...');
+                // Initialize Supabase client
+                const { createClient } = supabase;
+                supabaseClient = createClient(supabaseUrl, supabaseKey);
                 
-                const response = await fetch(`${config.supabaseUrl}/rest/v1/whatsapp_messages?select=phone_number,message_text,sender_type,timestamp&order=timestamp.desc`, {
-                    headers: {
-                        'apikey': config.supabaseKey,
-                        'Authorization': `Bearer ${config.supabaseKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
+                // Load conversations
+                await loadConversations();
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const messages = await response.json();
-                conversations = transformMessagesToConversations(messages);
-                
-                updateConnectionStatus(`Connected - ${conversations.length} conversations loaded`);
-                renderConversations();
+                // Set up real-time subscription
+                setupRealtimeSubscription();
                 
             } catch (error) {
-                console.error('Error loading conversations:', error);
-                updateConnectionStatus(`Connection Error: ${error.message}`);
-                showFallbackData();
+                console.error('Failed to initialize dashboard:', error);
+                showSettings();
             }
         }
 
-        function transformMessagesToConversations(messages) {
-            if (!Array.isArray(messages)) return [];
+        function showSettings() {
+            // Pre-fill form with existing values
+            document.getElementById('supabaseUrl').value = localStorage.getItem('supabase_url') || '';
+            document.getElementById('supabaseKey').value = localStorage.getItem('supabase_key') || '';
+            document.getElementById('phoneNumberId').value = localStorage.getItem('phone_number_id') || '';
+            document.getElementById('accessToken').value = localStorage.getItem('access_token') || '';
             
-            const conversationMap = {};
+            document.getElementById('setupModal').style.display = 'flex';
+        }
+
+        function saveSettings() {
+            const supabaseUrl = document.getElementById('supabaseUrl').value;
+            const supabaseKey = document.getElementById('supabaseKey').value;
+            const phoneNumberId = document.getElementById('phoneNumberId').value;
+            const accessToken = document.getElementById('accessToken').value;
+
+            if (!supabaseUrl || !supabaseKey) {
+                alert('Supabase URL and API Key are required');
+                return;
+            }
+
+            // Save to localStorage
+            localStorage.setItem('supabase_url', supabaseUrl);
+            localStorage.setItem('supabase_key', supabaseKey);
+            localStorage.setItem('phone_number_id', phoneNumberId);
+            localStorage.setItem('access_token', accessToken);
+
+            document.getElementById('setupModal').style.display = 'none';
             
-            messages.forEach(msg => {
-                if (!conversationMap[msg.phone_number]) {
-                    conversationMap[msg.phone_number] = {
-                        phone_number: msg.phone_number,
-                        customer_name: null,
-                        last_message: '',
-                        last_message_time: '',
-                        unread_count: 0,
-                        needs_human: false,
-                        total_messages: 0
-                    };
-                }
+            // Reload the dashboard
+            location.reload();
+        }
+
+        async function loadConversations() {
+            try {
+                // Get latest message for each customer
+                const { data, error } = await supabaseClient
+                    .from('whatsapp_messages')
+                    .select('*')
+                    .order('timestamp', { ascending: false });
+
+                if (error) throw error;
+
+                // Group messages by phone number and get latest info
+                const conversationMap = new Map();
                 
-                const conv = conversationMap[msg.phone_number];
-                conv.total_messages++;
-                
-                if (msg.sender_type === 'customer' && !conv.customer_name) {
-                    conv.customer_name = `Customer ${msg.phone_number.slice(-4)}`;
-                }
-                
-                if (!conv.last_message) {
-                    conv.last_message = msg.message_text;
-                    conv.last_message_time = msg.timestamp;
-                }
-                
-                if (msg.sender_type === 'customer') {
-                    const msgTime = new Date(msg.timestamp);
-                    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
-                    if (msgTime > twoHoursAgo) {
-                        conv.unread_count++;
+                data.forEach(message => {
+                    const phoneNumber = message.phone_number;
+                    
+                    if (!conversationMap.has(phoneNumber)) {
+                        conversationMap.set(phoneNumber, {
+                            phone_number: phoneNumber,
+                            customer_name: message.customer_name || phoneNumber,
+                            wa_id: message.wa_id || phoneNumber,
+                            customer_avatar_url: message.customer_avatar_url,
+                            last_message: message.message_text,
+                            last_timestamp: message.timestamp,
+                            last_sender: message.sender_type,
+                            thread_id: message.thread_id,
+                            unread_count: 0
+                        });
                     }
-                }
-            });
-            
-            return Object.values(conversationMap).sort((a, b) => 
-                new Date(b.last_message_time) - new Date(a.last_message_time)
-            );
-        }
+                });
 
-        function updateConnectionStatus(message) {
-            const status = document.getElementById('connection-status');
-            if (status) {
-                status.textContent = message;
+                conversations = Array.from(conversationMap.values())
+                    .sort((a, b) => new Date(b.last_timestamp) - new Date(a.last_timestamp));
+
+                renderConversations();
+
+            } catch (error) {
+                console.error('Error loading conversations:', error);
+                document.getElementById('conversations').innerHTML = 
+                    '<div class="loading">Error loading conversations</div>';
             }
-        }
-
-        function showFallbackData() {
-            conversations = [
-                {
-                    phone_number: '447920077371',
-                    customer_name: 'Customer 7371',
-                    last_message: 'Hello! How can I assist you today?',
-                    last_message_time: new Date().toISOString(),
-                    unread_count: 1,
-                    needs_human: false,
-                    total_messages: 5
-                }
-            ];
-            renderConversations();
         }
 
         function renderConversations() {
             const container = document.getElementById('conversations');
             
-            if (!conversations.length) {
-                container.innerHTML = '<div class="error">No conversations found</div>';
-                return;
-            }
-            
-            const filteredConversations = conversations.filter(conv => {
-                switch(currentFilter) {
-                    case 'needs-human': return conv.needs_human;
-                    case 'recent': return conv.unread_count > 0;
-                    default: return true;
-                }
-            });
-
-            if (!filteredConversations.length) {
-                container.innerHTML = '<div class="error">No conversations match the current filter</div>';
+            if (conversations.length === 0) {
+                container.innerHTML = '<div class="loading">No conversations yet</div>';
                 return;
             }
 
-            container.innerHTML = filteredConversations.map(conversation => {
-                const displayName = conversation.customer_name || `Customer ${conversation.phone_number.slice(-4)}`;
-                const timeAgo = formatTimeAgo(conversation.last_message_time);
-                
-                return `
-                    <div class="conversation-item ${conversation.needs_human ? 'needs-human' : ''}" 
-                         onclick="selectConversation('${conversation.phone_number}')">
-                        <div class="conversation-header">
-                            <div class="customer-info">
-                                <div class="avatar">${displayName.charAt(0).toUpperCase()}</div>
-                                <div class="customer-details">
-                                    <h3>${displayName}</h3>
-                                    <p>+${conversation.phone_number}</p>
-                                </div>
-                            </div>
-                            <div class="conversation-status">
-                                ${conversation.unread_count > 0 ? `<div class="unread-badge">${conversation.unread_count}</div>` : ''}
-                                ${conversation.needs_human ? '🚨' : '🤖'}
-                            </div>
-                        </div>
-                        <div class="last-message">${conversation.last_message || 'No messages yet'}</div>
-                        <div class="message-time">${timeAgo} • ${conversation.total_messages} messages</div>
+            container.innerHTML = conversations.map(conv => `
+                <div class="conversation-item" onclick="selectConversation('${conv.phone_number}')" 
+                     data-phone="${conv.phone_number}">
+                    <div class="avatar" style="background-color: ${getAvatarColor(conv.customer_name)}">
+                        ${conv.customer_avatar_url ? 
+                            `<img src="${conv.customer_avatar_url}" alt="${conv.customer_name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                             <span style="display: none;">${getInitials(conv.customer_name)}</span>` :
+                            getInitials(conv.customer_name)
+                        }
                     </div>
-                `;
-            }).join('');
+                    <div class="conversation-info">
+                        <div class="customer-name">${conv.customer_name}</div>
+                        <div class="phone-number">${conv.phone_number}</div>
+                        <div class="last-message">
+                            ${conv.last_sender === 'ai' ? '🤖 ' : ''}${conv.last_message}
+                        </div>
+                    </div>
+                    <div class="conversation-meta">
+                        <div class="message-time">${formatTime(conv.last_timestamp)}</div>
+                        <div class="status-indicator ${getOnlineStatus(conv.last_timestamp)}"></div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function selectConversation(phoneNumber) {
-            const conversation = conversations.find(c => c.phone_number === phoneNumber);
-            if (!conversation) return;
-
+        async function selectConversation(phoneNumber) {
+            selectedConversation = phoneNumber;
+            
+            // Update active state
             document.querySelectorAll('.conversation-item').forEach(item => {
                 item.classList.remove('active');
             });
-            event.currentTarget.classList.add('active');
+            document.querySelector(`[data-phone="${phoneNumber}"]`).classList.add('active');
 
-            currentConversation = conversation;
-            showChatArea();
-            loadConversationMessages(phoneNumber);
+            // Load messages for this conversation
+            await loadMessages(phoneNumber);
         }
 
-        function showChatArea() {
-            const displayName = currentConversation.customer_name || `Customer ${currentConversation.phone_number.slice(-4)}`;
-            
-            document.getElementById('empty-state').style.display = 'none';
-            document.getElementById('chat-header').style.display = 'flex';
-            document.getElementById('messages').style.display = 'block';
-            document.getElementById('input-area').style.display = 'block';
-
-            document.getElementById('chat-avatar').textContent = displayName.charAt(0).toUpperCase();
-            document.getElementById('chat-customer-name').textContent = displayName;
-            document.getElementById('chat-customer-phone').textContent = '+' + currentConversation.phone_number;
-            
-            const statusBtn = document.getElementById('ai-status');
-            if (currentConversation.needs_human) {
-                statusBtn.textContent = '🚨 Needs Human';
-                statusBtn.className = 'control-btn needs-human';
-            } else {
-                statusBtn.textContent = '🤖 AI Active';
-                statusBtn.className = 'control-btn ai-active';
-            }
-        }
-
-        async function loadConversationMessages(phoneNumber) {
-            if (!config.supabaseUrl || !config.supabaseKey) {
-                renderMessages([{
-                    message_text: 'Please configure Supabase settings',
-                    sender_type: 'system',
-                    timestamp: new Date().toISOString()
-                }]);
-                return;
-            }
-
+        async function loadMessages(phoneNumber) {
             try {
-                const response = await fetch(`${config.supabaseUrl}/rest/v1/whatsapp_messages?phone_number=eq.${phoneNumber}&select=message_text,sender_type,timestamp,needs_human,ai_enabled&order=timestamp.asc`, {
-                    headers: {
-                        'apikey': config.supabaseKey,
-                        'Authorization': `Bearer ${config.supabaseKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const messages = await response.json();
-                renderMessages(Array.isArray(messages) ? messages : []);
-                
+                const { data, error } = await supabaseClient
+                    .from('whatsapp_messages')
+                    .select('*')
+                    .eq('phone_number', phoneNumber)
+                    .order('timestamp', { ascending: true });
+
+                if (error) throw error;
+
+                const conversation = conversations.find(c => c.phone_number === phoneNumber);
+                renderChatArea(conversation, data);
+
             } catch (error) {
                 console.error('Error loading messages:', error);
-                renderMessages([
-                    {
-                        message_text: 'Error loading conversation history',
-                        sender_type: 'system',
-                        timestamp: new Date().toISOString()
-                    }
-                ]);
             }
         }
 
-        function renderMessages(messages) {
-            const container = document.getElementById('messages');
+        function renderChatArea(conversation, messages) {
+            const chatArea = document.getElementById('chatArea');
             
-            if (!messages.length) {
-                container.innerHTML = '<div class="error">No messages in this conversation yet</div>';
-                return;
-            }
-            
-            container.innerHTML = messages.map(message => {
-                const time = formatTime(message.timestamp);
-                const senderLabel = {
-                    'customer': 'Customer',
-                    'ai': '🤖 AI',
-                    'human': '👤 Staff',
-                    'system': '⚠️ System'
-                }[message.sender_type] || message.sender_type;
-
-                return `
-                    <div class="message ${message.sender_type}">
-                        <div class="message-bubble">
-                            <div class="message-text">${message.message_text}</div>
-                            <div class="message-meta">
-                                <span class="message-time">${time}</span>
-                                <span class="sender-type">${senderLabel}</span>
-                            </div>
-                        </div>
+            chatArea.innerHTML = `
+                <div class="chat-header">
+                    <div class="chat-avatar" style="background-color: ${getAvatarColor(conversation.customer_name)}">
+                        ${conversation.customer_avatar_url ? 
+                            `<img src="${conversation.customer_avatar_url}" alt="${conversation.customer_name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                             <span style="display: none;">${getInitials(conversation.customer_name)}</span>` :
+                            getInitials(conversation.customer_name)
+                        }
                     </div>
-                `;
-            }).join('');
-
-            container.scrollTop = container.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('message-input');
-            const message = input.value.trim();
-            
-            if (!message || !currentConversation) return;
-            if (!config.supabaseUrl || !config.supabaseKey || !config.whatsappToken) {
-                showError('Please configure all settings first');
-                return;
-            }
-
-            const sendBtn = document.getElementById('send-btn');
-            sendBtn.disabled = true;
-
-            try {
-                // Add message to UI immediately
-                addMessageToUI(message, 'human');
-                input.value = '';
-
-                // Log message to Supabase
-                await fetch(`${config.supabaseUrl}/rest/v1/whatsapp_messages`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': config.supabaseKey,
-                        'Authorization': `Bearer ${config.supabaseKey}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        phone_number: currentConversation.phone_number,
-                        message_text: message,
-                        sender_type: 'human',
-                        timestamp: new Date().toISOString(),
-                        ai_enabled: false,
-                        needs_human: false,
-                        status: 'sent'
-                    })
-                });
-
-                // Send WhatsApp message via API
-                await fetch(`https://graph.facebook.com/v17.0/${config.whatsappPhoneId}/messages`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${config.whatsappToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        messaging_product: 'whatsapp',
-                        to: currentConversation.phone_number,
-                        text: { body: message }
-                    })
-                });
-
-                // Update conversation status
-                currentConversation.needs_human = false;
-                
-                const statusBtn = document.getElementById('ai-status');
-                statusBtn.textContent = '👤 Human Active';
-                statusBtn.className = 'control-btn human-mode';
-
-                showSuccess('Message sent successfully!');
-                setTimeout(loadConversations, 1000);
-
-            } catch (error) {
-                console.error('Error sending message:', error);
-                showError('Failed to send message. Please check your configuration.');
-            } finally {
-                sendBtn.disabled = false;
-            }
-        }
-
-        function addMessageToUI(text, senderType) {
-            const container = document.getElementById('messages');
-            const time = formatTime(new Date());
-            const senderLabel = senderType === 'human' ? '👤 Staff' : '🤖 AI';
-            
-            const messageHTML = `
-                <div class="message ${senderType}">
-                    <div class="message-bubble">
-                        <div class="message-text">${text}</div>
-                        <div class="message-meta">
-                            <span class="message-time">${time}</span>
-                            <span class="sender-type">${senderLabel}</span>
-                        </div>
+                    <div class="chat-info">
+                        <h2>${conversation.customer_name}</h2>
+                        <div class="status">${conversation.phone_number} • ${getOnlineStatusText(conversation.last_timestamp)}</div>
                     </div>
+                </div>
+                <div class="messages" id="messages">
+                    ${messages.map(msg => `
+                        <div class="message ${msg.sender_type}">
+                            <div class="message-text">${msg.message_text}</div>
+                            <div class="message-time-stamp">${formatTime(msg.timestamp)}</div>
+                        </div>
+                    `).join('')}
                 </div>
             `;
+
+            // Scroll to bottom
+            const messagesContainer = document.getElementById('messages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function setupRealtimeSubscription() {
+            if (!supabaseClient) return;
+
+            supabaseClient
+                .channel('whatsapp_messages')
+                .on('postgres_changes', 
+                    { event: 'INSERT', schema: 'public', table: 'whatsapp_messages' }, 
+                    (payload) => {
+                        console.log('New message received:', payload);
+                        handleNewMessage(payload.new);
+                    }
+                )
+                .subscribe();
+        }
+
+        function handleNewMessage(newMessage) {
+            // Update conversations list
+            loadConversations();
             
-            container.insertAdjacentHTML('beforeend', messageHTML);
-            container.scrollTop = container.scrollHeight;
+            // If this message is for the currently selected conversation, update chat
+            if (selectedConversation === newMessage.phone_number) {
+                loadMessages(newMessage.phone_number);
+            }
         }
 
-        function showError(message) {
-            const container = document.getElementById('messages');
-            container.insertAdjacentHTML('beforeend', `
-                <div class="error" style="margin: 10px 0; padding: 10px; background: #ffebee; border-radius: 4px;">
-                    ${message}
-                </div>
-            `);
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
         }
 
-        function showSuccess(message) {
-            const container = document.getElementById('messages');
-            container.insertAdjacentHTML('beforeend', `
-                <div class="success" style="margin: 10px 0; padding: 10px; background: #e8f5e8; border-radius: 4px;">
-                    ${message}
-                </div>
-            `);
+        function getAvatarColor(name) {
+            const colors = [
+                '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+                '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+            ];
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colors[Math.abs(hash) % colors.length];
         }
 
         function formatTime(timestamp) {
-            return new Date(timestamp).toLocaleTimeString('en-US', { 
-                hour12: false, 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) {
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } else if (diffDays === 1) {
+                return 'Yesterday';
+            } else if (diffDays < 7) {
+                return date.toLocaleDateString([], { weekday: 'short' });
+            } else {
+                return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            }
+        }
+
+        function getOnlineStatus(lastTimestamp) {
+            const diffMs = new Date() - new Date(lastTimestamp);
+            const diffMinutes = diffMs / (1000 * 60);
+            
+            if (diffMinutes < 5) return 'online';
+            if (diffMinutes < 60) return 'away';
+            return 'offline';
+        }
+
+        function getOnlineStatusText(lastTimestamp) {
+            const diffMs = new Date() - new Date(lastTimestamp);
+            const diffMinutes = diffMs / (1000 * 60);
+            
+            if (diffMinutes < 5) return 'Active now';
+            if (diffMinutes < 60) return `Active ${Math.floor(diffMinutes)} minutes ago`;
+            
+            const diffHours = diffMs / (1000 * 60 * 60);
+            if (diffHours < 24) return `Active ${Math.floor(diffHours)} hours ago`;
+            
+            const diffDays = diffMs / (1000 * 60 * 60 * 24);
+            return `Active ${Math.floor(diffDays)} days ago`;
+        }
+
+        function filterConversations() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.conversation-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.customer-name').textContent.toLowerCase();
+                const phone = item.querySelector('.phone-number').textContent.toLowerCase();
+                const message = item.querySelector('.last-message').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || phone.includes(searchTerm) || message.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
             });
         }
 
-        function formatTimeAgo(timestamp) {
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diff = now - date;
-            
-            if (diff < 60000) return 'Just now';
-            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
-            if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
-            
-            return date.toLocaleDateString();
-        }
-
-        // Auto-resize textarea
-        document.addEventListener('DOMContentLoaded', function() {
-            const textarea = document.getElementById('message-input');
-            if (textarea) {
-                textarea.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-                });
-            }
-        });
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', function() {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-        });
+        // Load Supabase library and initialize
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js';
+        script.onload = () => {
+            initializeDashboard();
+        };
+        document.head.appendChild(script);
     </script>
 </body>
 </html>
