@@ -51,13 +51,13 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #4CAF50;
-            animation: pulse 2s infinite;
-        }
-
-        .connection-status.disconnected {
             background: #f44336;
             animation: none;
+        }
+
+        .connection-status.connected {
+            background: #4CAF50;
+            animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
@@ -368,6 +368,7 @@
             height: 100%;
             color: #666;
             text-align: center;
+            padding: 40px;
         }
 
         .empty-state h3 {
@@ -382,6 +383,9 @@
             height: 100%;
             font-size: 16px;
             color: #666;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
         }
 
         .setup-modal {
@@ -445,46 +449,72 @@
             background: #1a9a94;
         }
 
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-left: auto;
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
 
-        .status-indicator.online {
-            background: #20B2AA;
+        .network-issue {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px;
+            color: #856404;
         }
 
-        .status-indicator.away {
-            background: #ffa726;
+        .network-issue h3 {
+            color: #d63384;
+            margin-bottom: 15px;
         }
 
-        .status-indicator.offline {
-            background: #666;
+        .network-issue ul {
+            margin: 15px 0;
+            padding-left: 20px;
         }
 
-        .conversation-meta {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            justify-content: center;
-            min-width: 60px;
+        .network-issue li {
+            margin-bottom: 8px;
         }
 
-        .unread-count {
-            background: #20B2AA;
+        .alternative-setup {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px;
+            color: #0c5460;
+        }
+
+        .alternative-setup h4 {
+            margin-bottom: 15px;
+            color: #0c5460;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+
+        .manual-connect-btn {
+            background: #28a745;
             color: white;
-            border-radius: 10px;
-            padding: 2px 6px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 4px;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 5px;
         }
 
-        .sending-indicator {
-            opacity: 0.7;
-            font-style: italic;
+        .manual-connect-btn:hover {
+            background: #218838;
         }
 
         /* Scrollbar Styling */
@@ -533,7 +563,7 @@
     <div class="dashboard">
         <div class="sidebar" id="sidebar">
             <div class="header">
-                <div class="connection-status" id="connectionStatus" title="Connection status"></div>
+                <div class="connection-status" id="connectionStatus" title="Not connected"></div>
                 <h1>Covase WhatsApp Dashboard</h1>
                 <button class="settings-btn" onclick="showSettings()">⚙️</button>
             </div>
@@ -541,14 +571,54 @@
                 <input type="text" placeholder="Search conversations..." id="searchInput" oninput="filterConversations()">
             </div>
             <div class="conversations" id="conversations">
-                <div class="loading">Loading conversations...</div>
+                <div class="network-issue">
+                    <h3>🚫 Network Restriction Detected</h3>
+                    <p>Your network is blocking external CDN libraries required for the dashboard to function.</p>
+                    
+                    <h4>Common Causes:</h4>
+                    <ul>
+                        <li><strong>Corporate Firewall</strong> - Company networks often block CDNs</li>
+                        <li><strong>Ad Blockers</strong> - uBlock Origin, AdBlock Plus, etc.</li>
+                        <li><strong>ISP Restrictions</strong> - Some ISPs block certain domains</li>
+                        <li><strong>VPN/Proxy</strong> - May interfere with CDN access</li>
+                    </ul>
+
+                    <h4>Quick Solutions:</h4>
+                    <ol>
+                        <li>Disable ad blockers temporarily</li>
+                        <li>Try a different network (mobile hotspot)</li>
+                        <li>Contact IT department about CDN access</li>
+                        <li>Use manual connection method below</li>
+                    </ol>
+
+                    <button class="manual-connect-btn" onclick="showManualConnection()">
+                        🔧 Try Manual Connection
+                    </button>
+                    <button class="manual-connect-btn" onclick="location.reload()">
+                        🔄 Retry with CDN
+                    </button>
+                </div>
             </div>
         </div>
 
         <div class="chat-area" id="chatArea">
             <div class="empty-state">
-                <h3>Welcome to your WhatsApp Dashboard</h3>
-                <p>Select a conversation to view messages</p>
+                <h3>Network Connectivity Issue</h3>
+                <p>Unable to load required libraries due to network restrictions</p>
+                
+                <div class="alternative-setup">
+                    <h4>🛠️ Alternative Setup Options</h4>
+                    <p><strong>Option 1:</strong> Download this dashboard and run it locally with Supabase JS included</p>
+                    <p><strong>Option 2:</strong> Use a different network that allows CDN access</p>
+                    <p><strong>Option 3:</strong> Set up a proxy server to bypass restrictions</p>
+                    
+                    <button onclick="downloadStandaloneVersion()" class="btn" style="width: auto; margin: 10px 5px;">
+                        📥 Download Standalone Version
+                    </button>
+                    <button onclick="showNetworkHelp()" class="btn" style="width: auto; margin: 10px 5px;">
+                        🆘 Network Help
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -556,7 +626,11 @@
     <!-- Setup Modal -->
     <div class="setup-modal" id="setupModal" style="display: none;">
         <div class="setup-form">
-            <h2>Dashboard Setup</h2>
+            <h2>Manual Database Connection</h2>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #666;">
+                Since CDN libraries are blocked, you'll need to connect manually using direct database queries.
+            </p>
+            
             <div class="form-group">
                 <label>Supabase URL:</label>
                 <input type="text" id="supabaseUrl" placeholder="https://your-project.supabase.co">
@@ -573,87 +647,47 @@
                 <label>WhatsApp Access Token:</label>
                 <input type="text" id="accessToken" placeholder="Your WhatsApp access token">
             </div>
-            <button class="btn" onclick="saveSettings()">Connect</button>
+            
+            <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0; font-size: 13px;">
+                <strong>⚠️ Note:</strong> Without the Supabase library, real-time features won't work. 
+                You'll need to refresh manually to see new messages.
+            </div>
+
+            <button class="btn" onclick="tryManualConnection()" id="connectBtn">Try Manual Connection</button>
+            <button onclick="closeSetupModal()" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px;">Cancel</button>
         </div>
     </div>
 
     <script>
-        let supabaseClient = null;
+        // Global variables
         let conversations = [];
         let selectedConversation = null;
         let whatsappConfig = {};
-        let realtimeChannel = null;
-        let conversationUpdateTimeout = null;
+        let isManualMode = false;
 
-        // Initialize the dashboard
-        async function initializeDashboard() {
-            // Check for saved credentials
-            const supabaseUrl = localStorage.getItem('supabase_url');
-            const supabaseKey = localStorage.getItem('supabase_key');
-            const phoneNumberId = localStorage.getItem('phone_number_id');
-            const accessToken = localStorage.getItem('access_token');
-
-            if (!supabaseUrl || !supabaseKey) {
-                showSettings();
-                return;
-            }
-
-            // Store WhatsApp config
-            whatsappConfig = {
-                phoneNumberId: phoneNumberId,
-                accessToken: accessToken
-            };
-
-            try {
-                // Initialize Supabase client
-                const { createClient } = supabase;
-                supabaseClient = createClient(supabaseUrl, supabaseKey);
-                
-                // Update connection status
-                updateConnectionStatus(true);
-                
-                // Load conversations
-                await loadConversations();
-                
-                // Set up real-time subscription with enhanced features
-                setupEnhancedRealtimeSubscription();
-                
-            } catch (error) {
-                console.error('Failed to initialize dashboard:', error);
-                updateConnectionStatus(false);
-                showSettings();
-            }
-        }
-
-        function updateConnectionStatus(connected) {
-            const status = document.getElementById('connectionStatus');
-            if (connected) {
-                status.classList.remove('disconnected');
-                status.title = 'Connected - Real-time updates active';
-            } else {
-                status.classList.add('disconnected');
-                status.title = 'Disconnected - Attempting to reconnect...';
-            }
-        }
+        console.log('🚫 Dashboard started in Network Restriction Mode');
+        console.log('📡 External CDN libraries are blocked by your network');
 
         function showSettings() {
-            // Pre-fill form with existing values
-            document.getElementById('supabaseUrl').value = localStorage.getItem('supabase_url') || '';
-            document.getElementById('supabaseKey').value = localStorage.getItem('supabase_key') || '';
-            document.getElementById('phoneNumberId').value = localStorage.getItem('phone_number_id') || '';
-            document.getElementById('accessToken').value = localStorage.getItem('access_token') || '';
-            
             document.getElementById('setupModal').style.display = 'flex';
         }
 
-        function saveSettings() {
-            const supabaseUrl = document.getElementById('supabaseUrl').value;
-            const supabaseKey = document.getElementById('supabaseKey').value;
-            const phoneNumberId = document.getElementById('phoneNumberId').value;
-            const accessToken = document.getElementById('accessToken').value;
+        function closeSetupModal() {
+            document.getElementById('setupModal').style.display = 'none';
+        }
+
+        function showManualConnection() {
+            showSettings();
+        }
+
+        function tryManualConnection() {
+            const supabaseUrl = document.getElementById('supabaseUrl').value.trim();
+            const supabaseKey = document.getElementById('supabaseKey').value.trim();
+            const phoneNumberId = document.getElementById('phoneNumberId').value.trim();
+            const accessToken = document.getElementById('accessToken').value.trim();
 
             if (!supabaseUrl || !supabaseKey) {
-                alert('Supabase URL and API Key are required');
+                alert('Supabase URL and API Key are required for manual connection');
                 return;
             }
 
@@ -663,46 +697,109 @@
             localStorage.setItem('phone_number_id', phoneNumberId);
             localStorage.setItem('access_token', accessToken);
 
+            whatsappConfig = {
+                phoneNumberId: phoneNumberId,
+                accessToken: accessToken
+            };
+
+            isManualMode = true;
             document.getElementById('setupModal').style.display = 'none';
             
-            // Reload the dashboard
-            location.reload();
+            console.log('🔧 Attempting manual connection...');
+            attemptManualConnection(supabaseUrl, supabaseKey);
         }
 
-        async function loadConversations() {
-            try {
-                // Get latest message for each customer with a more efficient query
-                const { data, error } = await supabaseClient
-                    .rpc('get_latest_conversations');
+        async function attemptManualConnection(supabaseUrl, supabaseKey) {
+            const connectBtn = document.getElementById('connectBtn');
+            if (connectBtn) connectBtn.disabled = true;
 
-                if (error) {
-                    // Fallback to manual grouping if RPC doesn't exist
-                    return await loadConversationsFallback();
+            try {
+                // Try direct REST API call to Supabase
+                const response = await fetch(`${supabaseUrl}/rest/v1/whatsapp_messages?select=*&limit=5`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
 
-                conversations = data.sort((a, b) => new Date(b.last_timestamp) - new Date(a.last_timestamp));
-                renderConversations();
+                const data = await response.json();
+                console.log('✅ Manual connection successful!', data);
+                
+                document.getElementById('conversations').innerHTML = `
+                    <div class="loading">
+                        <h3 style="color: #28a745;">✅ Manual Connection Success!</h3>
+                        <p>Connected to database via REST API</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Found ${data.length} recent messages</p>
+                        <button onclick="loadConversationsManually()" class="btn" style="width: auto; margin-top: 15px;">
+                            Load Conversations
+                        </button>
+                        <div style="background: #d1ecf1; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 12px;">
+                            <strong>Manual Mode Active:</strong><br>
+                            • No real-time updates<br>
+                            • Click refresh to see new messages<br>
+                            • Limited functionality
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('connectionStatus').style.background = '#ffa726';
+                document.getElementById('connectionStatus').title = 'Manual mode - Limited functionality';
 
             } catch (error) {
-                console.error('Error loading conversations:', error);
-                // Try fallback method
-                await loadConversationsFallback();
+                console.error('❌ Manual connection failed:', error);
+                document.getElementById('conversations').innerHTML = `
+                    <div class="loading">
+                        <h3 style="color: #d32f2f;">❌ Connection Failed</h3>
+                        <p>Error: ${error.message}</p>
+                        <p style="font-size: 12px; margin: 10px 0;">Check your Supabase URL and API key</p>
+                        <button onclick="showSettings()" class="btn" style="width: auto; margin-top: 10px;">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            } finally {
+                if (connectBtn) connectBtn.disabled = false;
             }
         }
 
-        async function loadConversationsFallback() {
+        async function loadConversationsManually() {
+            const supabaseUrl = localStorage.getItem('supabase_url');
+            const supabaseKey = localStorage.getItem('supabase_key');
+
+            if (!supabaseUrl || !supabaseKey) {
+                alert('No connection details found');
+                return;
+            }
+
+            document.getElementById('conversations').innerHTML = '<div class="loading">Loading conversations...</div>';
+
             try {
-                const { data, error } = await supabaseClient
-                    .from('whatsapp_messages')
-                    .select('*')
-                    .order('timestamp', { ascending: false });
+                const response = await fetch(`${supabaseUrl}/rest/v1/whatsapp_messages?select=*&order=timestamp.desc&limit=1000`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-                if (error) throw error;
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
 
-                // Group messages by phone number and get latest info
+                const messages = await response.json();
+                console.log(`📥 Loaded ${messages.length} messages manually`);
+
+                // Group messages by phone number
                 const conversationMap = new Map();
                 
-                data.forEach(message => {
+                messages.forEach(message => {
                     const phoneNumber = message.phone_number;
                     
                     if (!conversationMap.has(phoneNumber)) {
@@ -726,10 +823,16 @@
                 renderConversations();
 
             } catch (error) {
-                console.error('Error loading conversations:', error);
-                document.getElementById('conversations').innerHTML = 
-                    '<div class="loading">Error loading conversations</div>';
-                updateConnectionStatus(false);
+                console.error('❌ Error loading conversations:', error);
+                document.getElementById('conversations').innerHTML = `
+                    <div class="loading">
+                        <h3 style="color: #d32f2f;">Error Loading Data</h3>
+                        <p>${error.message}</p>
+                        <button onclick="loadConversationsManually()" class="btn" style="width: auto; margin-top: 10px;">
+                            Retry
+                        </button>
+                    </div>
+                `;
             }
         }
 
@@ -737,11 +840,19 @@
             const container = document.getElementById('conversations');
             
             if (conversations.length === 0) {
-                container.innerHTML = '<div class="loading">No conversations yet</div>';
+                container.innerHTML = '<div class="loading">No conversations found</div>';
                 return;
             }
 
-            container.innerHTML = conversations.map(conv => `
+            const refreshButton = `
+                <div style="padding: 10px; border-bottom: 1px solid #e0e0e0; background: #f8f9fa;">
+                    <button onclick="loadConversationsManually()" style="width: 100%; padding: 8px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        🔄 Refresh Conversations
+                    </button>
+                </div>
+            `;
+
+            container.innerHTML = refreshButton + conversations.map(conv => `
                 <div class="conversation-item" onclick="selectConversation('${conv.phone_number}')" 
                      data-phone="${conv.phone_number}">
                     <div class="avatar" style="background-color: ${getAvatarColor(conv.customer_name)}">
@@ -750,31 +861,24 @@
                              <span style="display: none;">${getInitials(conv.customer_name)}</span>` :
                             getInitials(conv.customer_name)
                         }
-                        <div class="typing-indicator" id="typing-${conv.phone_number}"></div>
                     </div>
                     <div class="conversation-info">
                         <div class="customer-name">${conv.customer_name}</div>
                         <div class="phone-number">${conv.phone_number}</div>
                         <div class="last-message">
-                            ${conv.last_sender === 'ai' ? '🤖 ' : ''}${conv.last_message}
+                            ${conv.last_sender === 'ai' ? '🤖 ' : ''}${conv.last_message || 'No messages yet'}
                         </div>
                     </div>
-                    <div class="conversation-meta">
-                        ${(conv.unread_count && conv.unread_count > 0) ? 
-                            `<div class="unread-count">${conv.unread_count}</div>` : ''
-                        }
-                        <div class="message-time">${formatTime(conv.last_timestamp)}</div>
-                        <div class="status-indicator ${getOnlineStatus(conv.last_timestamp)}"></div>
-                    </div>
+                    <div class="message-time">${formatTime(conv.last_timestamp)}</div>
                 </div>
             `).join('');
+
+            console.log(`✅ Rendered ${conversations.length} conversations`);
         }
 
         async function selectConversation(phoneNumber) {
+            console.log(`👆 Selected conversation: ${phoneNumber}`);
             selectedConversation = phoneNumber;
-            
-            // Mark conversation as read
-            markConversationAsRead(phoneNumber);
             
             // Update active state
             document.querySelectorAll('.conversation-item').forEach(item => {
@@ -785,28 +889,43 @@
                 activeItem.classList.add('active');
             }
 
-            // Load messages for this conversation
-            await loadMessages(phoneNumber);
+            await loadMessagesManually(phoneNumber);
         }
 
-        async function loadMessages(phoneNumber) {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('whatsapp_messages')
-                    .select('*')
-                    .eq('phone_number', phoneNumber)
-                    .order('timestamp', { ascending: true });
+        async function loadMessagesManually(phoneNumber) {
+            const supabaseUrl = localStorage.getItem('supabase_url');
+            const supabaseKey = localStorage.getItem('supabase_key');
 
-                if (error) throw error;
+            if (!supabaseUrl || !supabaseKey) {
+                alert('No connection details found');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${supabaseUrl}/rest/v1/whatsapp_messages?phone_number=eq.${phoneNumber}&select=*&order=timestamp.asc`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const messages = await response.json();
+                console.log(`📨 Loaded ${messages.length} messages for conversation`);
 
                 const conversation = conversations.find(c => c.phone_number === phoneNumber);
                 if (conversation) {
-                    renderChatArea(conversation, data);
+                    renderChatArea(conversation, messages);
                 }
 
             } catch (error) {
-                console.error('Error loading messages:', error);
-                updateConnectionStatus(false);
+                console.error('❌ Error loading messages:', error);
+                alert(`Error loading messages: ${error.message}`);
             }
         }
 
@@ -824,8 +943,11 @@
                     </div>
                     <div class="chat-info">
                         <h2>${conversation.customer_name}</h2>
-                        <div class="status">${conversation.phone_number} • ${getOnlineStatusText(conversation.last_timestamp)}</div>
+                        <div class="status">${conversation.phone_number} • Manual Mode</div>
                     </div>
+                    <button onclick="loadMessagesManually('${conversation.phone_number}')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-left: auto;">
+                        🔄 Refresh
+                    </button>
                 </div>
                 <div class="messages" id="messages">
                     ${messages.map(msg => `
@@ -841,13 +963,13 @@
                         <textarea 
                             class="message-input" 
                             id="messageInput" 
-                            placeholder="Type a message..."
+                            placeholder="Type a message... (Manual mode - no real-time sync)"
                             rows="1"
                             onkeydown="handleInputKeydown(event)"
                             oninput="autoResizeTextarea(this)"
                         ></textarea>
                     </div>
-                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessageManually()" disabled>
                         <svg viewBox="0 0 24 24">
                             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                         </svg>
@@ -855,40 +977,19 @@
                 </div>
             `;
 
-            // Scroll to bottom smoothly
+            // Scroll to bottom
             const messagesContainer = document.getElementById('messages');
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
 
-            // Focus on input and set up listeners
+            // Set up input handlers
             const messageInput = document.getElementById('messageInput');
-            messageInput.focus();
             messageInput.addEventListener('input', updateSendButton);
-            updateSendButton(); // Initial state
+            updateSendButton();
         }
 
-        function autoResizeTextarea(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-        }
-
-        function updateSendButton() {
-            const messageInput = document.getElementById('messageInput');
-            const sendBtn = document.getElementById('sendBtn');
-            
-            if (messageInput && sendBtn) {
-                const hasText = messageInput.value.trim().length > 0;
-                sendBtn.disabled = !hasText;
-            }
-        }
-
-        function handleInputKeydown(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        }
-
-        async function sendMessage() {
+        async function sendMessageManually() {
             const messageInput = document.getElementById('messageInput');
             const sendBtn = document.getElementById('sendBtn');
             
@@ -897,52 +998,51 @@
             const messageText = messageInput.value.trim();
             if (!messageText) return;
 
+            const supabaseUrl = localStorage.getItem('supabase_url');
+            const supabaseKey = localStorage.getItem('supabase_key');
+
+            if (!supabaseUrl || !supabaseKey) {
+                alert('No connection details found');
+                return;
+            }
+
             try {
-                // Disable send button and show sending state
                 sendBtn.disabled = true;
                 messageInput.disabled = true;
                 
-                // Add message optimistically to UI
-                const tempMessage = {
-                    id: 'temp-' + Date.now(),
+                const conversation = conversations.find(c => c.phone_number === selectedConversation);
+                const newMessage = {
+                    phone_number: selectedConversation,
+                    wa_id: conversation?.wa_id || selectedConversation,
+                    customer_name: conversation?.customer_name || selectedConversation,
                     message_text: messageText,
                     sender_type: 'ai',
                     timestamp: new Date().toISOString(),
-                    phone_number: selectedConversation
+                    thread_id: conversation?.thread_id
                 };
-                
-                addMessageToChat(tempMessage);
-                
-                // Clear input
+
+                const response = await fetch(`${supabaseUrl}/rest/v1/whatsapp_messages`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(newMessage)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                console.log('✅ Message sent successfully');
                 messageInput.value = '';
-                autoResizeTextarea(messageInput);
                 
-                // Save message to database
-                const conversation = conversations.find(c => c.phone_number === selectedConversation);
-                const { data, error } = await supabaseClient
-                    .from('whatsapp_messages')
-                    .insert([{
-                        phone_number: selectedConversation,
-                        wa_id: conversation.wa_id,
-                        customer_name: conversation.customer_name,
-                        message_text: messageText,
-                        sender_type: 'ai',
-                        timestamp: new Date().toISOString(),
-                        thread_id: conversation.thread_id
-                    }])
-                    .select();
-
-                if (error) throw error;
-
-                // Remove temp message and add real one
-                const tempElement = document.querySelector(`[data-message-id="${tempMessage.id}"]`);
-                if (tempElement) {
-                    tempElement.remove();
-                }
-                
-                if (data && data[0]) {
-                    addMessageToChat(data[0]);
-                }
+                // Reload messages to show the new one
+                setTimeout(() => {
+                    loadMessagesManually(selectedConversation);
+                }, 500);
 
                 // Send via WhatsApp API if configured
                 if (whatsappConfig.phoneNumberId && whatsappConfig.accessToken) {
@@ -950,18 +1050,11 @@
                 }
 
             } catch (error) {
-                console.error('Error sending message:', error);
-                alert('Failed to send message. Please try again.');
-                
-                // Remove temp message on error
-                const tempElement = document.querySelector(`[data-message-id="${tempMessage.id}"]`);
-                if (tempElement) {
-                    tempElement.remove();
-                }
+                console.error('❌ Error sending message:', error);
+                alert(`Failed to send message: ${error.message}`);
             } finally {
-                // Re-enable controls
+                sendBtn.disabled = false;
                 messageInput.disabled = false;
-                messageInput.focus();
                 updateSendButton();
             }
         }
@@ -981,19 +1074,40 @@
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`WhatsApp API error: ${response.status}`);
+                if (response.ok) {
+                    console.log('✅ Message sent via WhatsApp API');
+                } else {
+                    console.warn('⚠️ WhatsApp API failed:', response.status);
                 }
-
-                console.log('Message sent via WhatsApp API successfully');
             } catch (error) {
-                console.error('Failed to send via WhatsApp API:', error);
-                // Message is already saved to database, so this is non-fatal
+                console.warn('⚠️ WhatsApp API error:', error.message);
+            }
+        }
+
+        // UI Helper functions
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        function updateSendButton() {
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            
+            if (messageInput && sendBtn) {
+                const hasText = messageInput.value.trim().length > 0;
+                sendBtn.disabled = !hasText;
+            }
+        }
+
+        function handleInputKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessageManually();
             }
         }
 
         function toggleEmojiPicker() {
-            // Simple emoji insertion for now
             const emojis = ['😊', '👍', '❤️', '😂', '🙏', '✅', '👋', '🔥', '💯', '🎉'];
             const emoji = emojis[Math.floor(Math.random() * emojis.length)];
             
@@ -1012,211 +1126,56 @@
             }
         }
 
-        function setupEnhancedRealtimeSubscription() {
-            if (!supabaseClient) return;
-
-            // Clean up existing subscription
-            if (realtimeChannel) {
-                realtimeChannel.unsubscribe();
-            }
-
-            realtimeChannel = supabaseClient
-                .channel('whatsapp_realtime_enhanced')
-                .on('postgres_changes', 
-                    { event: 'INSERT', schema: 'public', table: 'whatsapp_messages' }, 
-                    (payload) => {
-                        console.log('🔥 Real-time: New message received:', payload);
-                        // Add small delay to ensure proper ordering
-                        setTimeout(() => {
-                            handleNewMessage(payload.new);
-                        }, 100);
-                    }
-                )
-                .on('postgres_changes',
-                    { event: 'UPDATE', schema: 'public', table: 'whatsapp_messages' },
-                    (payload) => {
-                        console.log('🔄 Real-time: Message updated:', payload);
-                        handleMessageUpdate(payload.new);
-                    }
-                )
-                .subscribe((status) => {
-                    console.log('📡 Real-time subscription status:', status);
-                    updateConnectionStatus(status === 'SUBSCRIBED');
-                    
-                    if (status === 'SUBSCRIBED') {
-                        console.log('✅ Real-time updates are now active!');
-                    } else if (status === 'CHANNEL_ERROR') {
-                        console.error('❌ Real-time subscription failed');
-                        // Try to reconnect after 5 seconds
-                        setTimeout(() => {
-                            console.log('🔄 Attempting to reconnect...');
-                            setupEnhancedRealtimeSubscription();
-                        }, 5000);
-                    }
-                });
-
-            // Enhanced health check with connection recovery
-            setInterval(async () => {
-                try {
-                    const { error } = await supabaseClient
-                        .from('whatsapp_messages')
-                        .select('id')
-                        .limit(1);
-                    
-                    if (!error) {
-                        updateConnectionStatus(true);
-                    } else {
-                        throw error;
-                    }
-                } catch (e) {
-                    console.warn('🚨 Connection health check failed:', e);
-                    updateConnectionStatus(false);
-                    
-                    // Try to reconnect realtime subscription
-                    if (realtimeChannel) {
-                        console.log('🔄 Reconnecting real-time subscription...');
-                        setupEnhancedRealtimeSubscription();
-                    }
-                }
-            }, 30000);
-        }
-
-        function handleNewMessage(newMessage) {
-            console.log('📥 Processing new message:', newMessage);
+        function filterConversations() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.conversation-item');
             
-            // Flash animation for new message
-            const conversationItem = document.querySelector(`[data-phone="${newMessage.phone_number}"]`);
-            if (conversationItem) {
-                conversationItem.classList.add('new-message');
-                setTimeout(() => {
-                    conversationItem.classList.remove('new-message');
-                }, 1000);
-            }
-
-            // Update conversation in real-time and increment unread if not current conversation
-            updateConversationInPlace(newMessage);
-            
-            // If this message is for the currently selected conversation, add to chat immediately
-            if (selectedConversation === newMessage.phone_number) {
-                addMessageToChat(newMessage);
-                // Mark as read since user is viewing this conversation
-                markConversationAsRead(newMessage.phone_number);
-            } else {
-                // Increment unread count for other conversations
-                incrementUnreadCount(newMessage.phone_number);
-            }
-
-            // Show typing indicator briefly for customer messages (AI might respond)
-            if (newMessage.sender_type === 'customer') {
-                showTypingIndicator(newMessage.phone_number);
-            }
-        }
-
-        function handleMessageUpdate(updatedMessage) {
-            // Handle message status updates (delivered, read, etc.)
-            if (selectedConversation === updatedMessage.phone_number) {
-                updateMessageInChat(updatedMessage);
-            }
-        }
-
-        function updateConversationInPlace(newMessage) {
-            // Debounce conversation list updates
-            clearTimeout(conversationUpdateTimeout);
-            conversationUpdateTimeout = setTimeout(() => {
-                // Find and update the specific conversation
-                const convIndex = conversations.findIndex(c => c.phone_number === newMessage.phone_number);
+            items.forEach(item => {
+                const name = item.querySelector('.customer-name')?.textContent.toLowerCase() || '';
+                const phone = item.querySelector('.phone-number')?.textContent.toLowerCase() || '';
+                const message = item.querySelector('.last-message')?.textContent.toLowerCase() || '';
                 
-                if (convIndex >= 0) {
-                    // Update existing conversation
-                    conversations[convIndex] = {
-                        ...conversations[convIndex],
-                        last_message: newMessage.message_text,
-                        last_timestamp: newMessage.timestamp,
-                        last_sender: newMessage.sender_type,
-                        customer_name: newMessage.customer_name || conversations[convIndex].customer_name,
-                        customer_avatar_url: newMessage.customer_avatar_url || conversations[convIndex].customer_avatar_url
-                    };
-                    
-                    // Move to top
-                    const updated = conversations.splice(convIndex, 1)[0];
-                    conversations.unshift(updated);
+                if (name.includes(searchTerm) || phone.includes(searchTerm) || message.includes(searchTerm)) {
+                    item.style.display = 'flex';
                 } else {
-                    // Add new conversation
-                    conversations.unshift({
-                        phone_number: newMessage.phone_number,
-                        customer_name: newMessage.customer_name || newMessage.phone_number,
-                        wa_id: newMessage.wa_id || newMessage.phone_number,
-                        customer_avatar_url: newMessage.customer_avatar_url,
-                        last_message: newMessage.message_text,
-                        last_timestamp: newMessage.timestamp,
-                        last_sender: newMessage.sender_type,
-                        thread_id: newMessage.thread_id,
-                        unread_count: 0
-                    });
+                    item.style.display = 'none';
                 }
-                
-                renderConversations();
-            }, 100); // Small debounce to handle rapid messages
+            });
         }
 
-        function incrementUnreadCount(phoneNumber) {
-            const convIndex = conversations.findIndex(c => c.phone_number === phoneNumber);
-            if (convIndex >= 0) {
-                conversations[convIndex].unread_count = (conversations[convIndex].unread_count || 0) + 1;
-                renderConversations();
-            }
+        function downloadStandaloneVersion() {
+            alert('Contact your developer to provide a standalone version with embedded Supabase library.');
         }
 
-        function markConversationAsRead(phoneNumber) {
-            const convIndex = conversations.findIndex(c => c.phone_number === phoneNumber);
-            if (convIndex >= 0) {
-                conversations[convIndex].unread_count = 0;
-                renderConversations();
-            }
+        function showNetworkHelp() {
+            alert(`Network Help:
+
+1. DISABLE AD BLOCKERS
+   - Turn off uBlock Origin, AdBlock Plus, etc.
+   - Whitelist jsdelivr.net and unpkg.com
+
+2. CHECK CORPORATE FIREWALL
+   - Contact IT department
+   - Request access to CDN domains:
+     * cdn.jsdelivr.net
+     * unpkg.com
+     * cdn.skypack.dev
+
+3. TRY DIFFERENT NETWORK
+   - Use mobile hotspot
+   - Try home WiFi instead of office network
+
+4. BROWSER SETTINGS
+   - Disable strict privacy settings
+   - Clear cache and cookies
+   - Try incognito/private mode
+
+5. VPN/PROXY ISSUES
+   - Disable VPN temporarily
+   - Try different proxy server`);
         }
 
-        function addMessageToChat(message) {
-            const messagesContainer = document.getElementById('messages');
-            if (!messagesContainer) return;
-
-            // Check if message already exists
-            if (document.querySelector(`[data-message-id="${message.id}"]`)) {
-                return;
-            }
-
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${message.sender_type}`;
-            messageElement.setAttribute('data-message-id', message.id);
-            messageElement.innerHTML = `
-                <div class="message-text">${message.message_text}</div>
-                <div class="message-time-stamp">${formatTime(message.timestamp)}</div>
-            `;
-
-            messagesContainer.appendChild(messageElement);
-            
-            // Smooth scroll to new message
-            messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-
-        function updateMessageInChat(message) {
-            const messageElement = document.querySelector(`[data-message-id="${message.id}"]`);
-            if (messageElement) {
-                messageElement.querySelector('.message-text').textContent = message.message_text;
-                messageElement.querySelector('.message-time-stamp').textContent = formatTime(message.timestamp);
-            }
-        }
-
-        function showTypingIndicator(phoneNumber) {
-            const indicator = document.getElementById(`typing-${phoneNumber}`);
-            if (indicator) {
-                indicator.style.display = 'block';
-                // Hide after 3 seconds
-                setTimeout(() => {
-                    indicator.style.display = 'none';
-                }, 3000);
-            }
-        }
-
+        // Utility functions
         function getInitials(name) {
             if (!name || name.includes('+')) return '👤';
             const parts = name.trim().split(/\s+/);
@@ -1255,60 +1214,18 @@
             }
         }
 
-        function getOnlineStatus(lastTimestamp) {
-            const diffMs = new Date() - new Date(lastTimestamp);
-            const diffMinutes = diffMs / (1000 * 60);
+        // Auto-load saved settings if available
+        window.addEventListener('load', () => {
+            const supabaseUrl = localStorage.getItem('supabase_url');
+            const supabaseKey = localStorage.getItem('supabase_key');
             
-            if (diffMinutes < 5) return 'online';
-            if (diffMinutes < 60) return 'away';
-            return 'offline';
-        }
-
-        function getOnlineStatusText(lastTimestamp) {
-            const diffMs = new Date() - new Date(lastTimestamp);
-            const diffMinutes = diffMs / (1000 * 60);
-            
-            if (diffMinutes < 1) return 'Active now';
-            if (diffMinutes < 60) return `Active ${Math.floor(diffMinutes)} minutes ago`;
-            
-            const diffHours = diffMs / (1000 * 60 * 60);
-            if (diffHours < 24) return `Active ${Math.floor(diffHours)} hours ago`;
-            
-            const diffDays = diffMs / (1000 * 60 * 60 * 24);
-            return `Active ${Math.floor(diffDays)} days ago`;
-        }
-
-        function filterConversations() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const items = document.querySelectorAll('.conversation-item');
-            
-            items.forEach(item => {
-                const name = item.querySelector('.customer-name').textContent.toLowerCase();
-                const phone = item.querySelector('.phone-number').textContent.toLowerCase();
-                const message = item.querySelector('.last-message').textContent.toLowerCase();
-                
-                if (name.includes(searchTerm) || phone.includes(searchTerm) || message.includes(searchTerm)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            if (realtimeChannel) {
-                realtimeChannel.unsubscribe();
+            if (supabaseUrl && supabaseKey) {
+                console.log('🔧 Found saved settings, attempting manual connection...');
+                setTimeout(() => {
+                    attemptManualConnection(supabaseUrl, supabaseKey);
+                }, 1000);
             }
         });
-
-        // Load Supabase library and initialize
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js';
-        script.onload = () => {
-            initializeDashboard();
-        };
-        document.head.appendChild(script);
     </script>
 </body>
 </html>
