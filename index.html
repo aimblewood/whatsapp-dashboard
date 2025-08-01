@@ -382,6 +382,9 @@
             height: 100%;
             font-size: 16px;
             color: #666;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
         }
 
         .setup-modal {
@@ -487,6 +490,34 @@
             font-style: italic;
         }
 
+        .troubleshoot-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px;
+            color: #856404;
+        }
+
+        .troubleshoot-box h4 {
+            margin-bottom: 10px;
+            color: #d63384;
+        }
+
+        .troubleshoot-box button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .troubleshoot-box button:hover {
+            background: #218838;
+        }
+
         /* Scrollbar Styling */
         .conversations::-webkit-scrollbar,
         .messages::-webkit-scrollbar {
@@ -533,7 +564,7 @@
     <div class="dashboard">
         <div class="sidebar" id="sidebar">
             <div class="header">
-                <div class="connection-status" id="connectionStatus" title="Connection status"></div>
+                <div class="connection-status disconnected" id="connectionStatus" title="Connecting..."></div>
                 <h1>Covase WhatsApp Dashboard</h1>
                 <button class="settings-btn" onclick="showSettings()">⚙️</button>
             </div>
@@ -541,7 +572,7 @@
                 <input type="text" placeholder="Search conversations..." id="searchInput" oninput="filterConversations()">
             </div>
             <div class="conversations" id="conversations">
-                <div class="loading">Loading conversations...</div>
+                <div class="loading">Initializing dashboard...</div>
             </div>
         </div>
 
@@ -582,11 +613,12 @@
         let conversations = [];
         let selectedConversation = null;
         let whatsappConfig = {};
-        let realtimeChannel = null;
-        let conversationUpdateTimeout = null;
+        let refreshInterval = null;
 
         // Initialize the dashboard
         async function initializeDashboard() {
+            console.log('🚀 Starting dashboard initialization...');
+            
             // Check for saved credentials
             const supabaseUrl = localStorage.getItem('supabase_url');
             const supabaseKey = localStorage.getItem('supabase_key');
@@ -594,6 +626,7 @@
             const accessToken = localStorage.getItem('access_token');
 
             if (!supabaseUrl || !supabaseKey) {
+                console.log('❌ No saved credentials found');
                 showSettings();
                 return;
             }
@@ -605,34 +638,102 @@
             };
 
             try {
+                console.log('🔌 Initializing Supabase client...');
                 // Initialize Supabase client
                 const { createClient } = supabase;
                 supabaseClient = createClient(supabaseUrl, supabaseKey);
                 
-                // Update connection status
+                // Test the connection first
+                console.log('🧪 Testing database connection...');
+                const { data, error } = await supabaseClient
+                    .from('whatsapp_messages')
+                    .select('id')
+                    .limit(1);
+
+                if (error) {
+                    throw new Error(`Database connection failed: ${error.message}`);
+                }
+
+                console.log('✅ Database connection successful');
                 updateConnectionStatus(true);
                 
                 // Load conversations
                 await loadConversations();
                 
-                // Set up real-time subscription with enhanced features
-                setupEnhancedRealtimeSubscription();
+                // Start 30-second refresh
+                startRefreshTimer();
                 
             } catch (error) {
-                console.error('Failed to initialize dashboard:', error);
+                console.error('❌ Failed to initialize dashboard:', error);
                 updateConnectionStatus(false);
-                showSettings();
+                showConnectionError(error.message);
             }
+        }
+
+        function startRefreshTimer() {
+            // Clear any existing timer
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+
+            // Start 30-second refresh
+            refreshInterval = setInterval(async () => {
+                console.log('⏰ 30-second refresh...');
+                try {
+                    await loadConversations();
+                    updateConnectionStatus(true);
+                } catch (error) {
+                    console.error('❌ Refresh failed:', error);
+                    updateConnectionStatus(false);
+                }
+            }, 30000);
+
+            console.log('⏱️ 30-second refresh timer started');
+        }
+
+        function showConnectionError(errorMessage) {
+            document.getElementById('conversations').innerHTML = `
+                <div class="troubleshoot-box">
+                    <h4>🚫 Connection Failed</h4>
+                    <p><strong>Error:</strong> ${errorMessage}</p>
+                    
+                    <h4>Quick Fixes:</h4>
+                    <button onclick="forceClearCache()">Clear Cache & Retry</button>
+                    <button onclick="location.reload()">Hard Refresh</button>
+                    <button onclick="showSettings()">Check Settings</button>
+                    
+                    <div style="margin-top: 10px; font-size: 12px;">
+                        <strong>Try these steps:</strong><br>
+                        1. Press Ctrl+F5 (or Cmd+Shift+R on Mac)<br>
+                        2. Try incognito/private mode<br>
+                        3. Disable ad blockers temporarily<br>
+                        4. Check internet connection
+                    </div>
+                </div>
+            `;
+        }
+
+        function forceClearCache() {
+            // Clear all localStorage
+            localStorage.clear();
+            
+            // Clear session storage
+            sessionStorage.clear();
+            
+            // Force reload without cache
+            location.reload(true);
         }
 
         function updateConnectionStatus(connected) {
             const status = document.getElementById('connectionStatus');
             if (connected) {
                 status.classList.remove('disconnected');
-                status.title = 'Connected - Real-time updates active';
+                status.title = 'Connected - Updates every 30 seconds';
+                console.log('🟢 Connection status: CONNECTED');
             } else {
                 status.classList.add('disconnected');
-                status.title = 'Disconnected - Attempting to reconnect...';
+                status.title = 'Disconnected - Check settings';
+                console.log('🔴 Connection status: DISCONNECTED');
             }
         }
 
@@ -670,27 +771,8 @@
         }
 
         async function loadConversations() {
-            try {
-                // Get latest message for each customer with a more efficient query
-                const { data, error } = await supabaseClient
-                    .rpc('get_latest_conversations');
-
-                if (error) {
-                    // Fallback to manual grouping if RPC doesn't exist
-                    return await loadConversationsFallback();
-                }
-
-                conversations = data.sort((a, b) => new Date(b.last_timestamp) - new Date(a.last_timestamp));
-                renderConversations();
-
-            } catch (error) {
-                console.error('Error loading conversations:', error);
-                // Try fallback method
-                await loadConversationsFallback();
-            }
-        }
-
-        async function loadConversationsFallback() {
+            console.log('📥 Loading conversations...');
+            
             try {
                 const { data, error } = await supabaseClient
                     .from('whatsapp_messages')
@@ -698,6 +780,8 @@
                     .order('timestamp', { ascending: false });
 
                 if (error) throw error;
+
+                console.log(`📊 Fetched ${data.length} messages`);
 
                 // Group messages by phone number and get latest info
                 const conversationMap = new Map();
@@ -723,12 +807,13 @@
                 conversations = Array.from(conversationMap.values())
                     .sort((a, b) => new Date(b.last_timestamp) - new Date(a.last_timestamp));
 
+                console.log(`📋 Processed ${conversations.length} conversations`);
                 renderConversations();
 
             } catch (error) {
-                console.error('Error loading conversations:', error);
+                console.error('❌ Error loading conversations:', error);
                 document.getElementById('conversations').innerHTML = 
-                    '<div class="loading">Error loading conversations</div>';
+                    `<div class="loading">Error: ${error.message}<br><button onclick="loadConversations()" style="margin-top: 10px; padding: 5px 10px; background: #20B2AA; color: white; border: none; border-radius: 4px; cursor: pointer;">Retry</button></div>`;
                 updateConnectionStatus(false);
             }
         }
@@ -768,13 +853,13 @@
                     </div>
                 </div>
             `).join('');
+
+            console.log(`✅ Rendered ${conversations.length} conversations`);
         }
 
         async function selectConversation(phoneNumber) {
+            console.log(`👆 Selected conversation: ${phoneNumber}`);
             selectedConversation = phoneNumber;
-            
-            // Mark conversation as read
-            markConversationAsRead(phoneNumber);
             
             // Update active state
             document.querySelectorAll('.conversation-item').forEach(item => {
@@ -790,6 +875,8 @@
         }
 
         async function loadMessages(phoneNumber) {
+            console.log(`📨 Loading messages for ${phoneNumber}`);
+            
             try {
                 const { data, error } = await supabaseClient
                     .from('whatsapp_messages')
@@ -799,13 +886,14 @@
 
                 if (error) throw error;
 
+                console.log(`💬 Loaded ${data.length} messages`);
                 const conversation = conversations.find(c => c.phone_number === phoneNumber);
                 if (conversation) {
                     renderChatArea(conversation, data);
                 }
 
             } catch (error) {
-                console.error('Error loading messages:', error);
+                console.error('❌ Error loading messages:', error);
                 updateConnectionStatus(false);
             }
         }
@@ -897,21 +985,12 @@
             const messageText = messageInput.value.trim();
             if (!messageText) return;
 
+            console.log('📤 Sending message:', messageText);
+
             try {
-                // Disable send button and show sending state
+                // Disable send button
                 sendBtn.disabled = true;
                 messageInput.disabled = true;
-                
-                // Add message optimistically to UI
-                const tempMessage = {
-                    id: 'temp-' + Date.now(),
-                    message_text: messageText,
-                    sender_type: 'ai',
-                    timestamp: new Date().toISOString(),
-                    phone_number: selectedConversation
-                };
-                
-                addMessageToChat(tempMessage);
                 
                 // Clear input
                 messageInput.value = '';
@@ -934,30 +1013,21 @@
 
                 if (error) throw error;
 
-                // Remove temp message and add real one
-                const tempElement = document.querySelector(`[data-message-id="${tempMessage.id}"]`);
-                if (tempElement) {
-                    tempElement.remove();
-                }
-                
-                if (data && data[0]) {
-                    addMessageToChat(data[0]);
-                }
+                console.log('✅ Message saved to database');
 
                 // Send via WhatsApp API if configured
                 if (whatsappConfig.phoneNumberId && whatsappConfig.accessToken) {
                     await sendWhatsAppMessage(selectedConversation, messageText);
                 }
 
+                // Reload messages to show the new one
+                setTimeout(() => {
+                    loadMessages(selectedConversation);
+                }, 500);
+
             } catch (error) {
-                console.error('Error sending message:', error);
+                console.error('❌ Error sending message:', error);
                 alert('Failed to send message. Please try again.');
-                
-                // Remove temp message on error
-                const tempElement = document.querySelector(`[data-message-id="${tempMessage.id}"]`);
-                if (tempElement) {
-                    tempElement.remove();
-                }
             } finally {
                 // Re-enable controls
                 messageInput.disabled = false;
@@ -985,15 +1055,13 @@
                     throw new Error(`WhatsApp API error: ${response.status}`);
                 }
 
-                console.log('Message sent via WhatsApp API successfully');
+                console.log('✅ Message sent via WhatsApp API');
             } catch (error) {
-                console.error('Failed to send via WhatsApp API:', error);
-                // Message is already saved to database, so this is non-fatal
+                console.error('❌ WhatsApp API failed:', error);
             }
         }
 
         function toggleEmojiPicker() {
-            // Simple emoji insertion for now
             const emojis = ['😊', '👍', '❤️', '😂', '🙏', '✅', '👋', '🔥', '💯', '🎉'];
             const emoji = emojis[Math.floor(Math.random() * emojis.length)];
             
@@ -1012,211 +1080,24 @@
             }
         }
 
-        function setupEnhancedRealtimeSubscription() {
-            if (!supabaseClient) return;
-
-            // Clean up existing subscription
-            if (realtimeChannel) {
-                realtimeChannel.unsubscribe();
-            }
-
-            realtimeChannel = supabaseClient
-                .channel('whatsapp_realtime_enhanced')
-                .on('postgres_changes', 
-                    { event: 'INSERT', schema: 'public', table: 'whatsapp_messages' }, 
-                    (payload) => {
-                        console.log('🔥 Real-time: New message received:', payload);
-                        // Add small delay to ensure proper ordering
-                        setTimeout(() => {
-                            handleNewMessage(payload.new);
-                        }, 100);
-                    }
-                )
-                .on('postgres_changes',
-                    { event: 'UPDATE', schema: 'public', table: 'whatsapp_messages' },
-                    (payload) => {
-                        console.log('🔄 Real-time: Message updated:', payload);
-                        handleMessageUpdate(payload.new);
-                    }
-                )
-                .subscribe((status) => {
-                    console.log('📡 Real-time subscription status:', status);
-                    updateConnectionStatus(status === 'SUBSCRIBED');
-                    
-                    if (status === 'SUBSCRIBED') {
-                        console.log('✅ Real-time updates are now active!');
-                    } else if (status === 'CHANNEL_ERROR') {
-                        console.error('❌ Real-time subscription failed');
-                        // Try to reconnect after 5 seconds
-                        setTimeout(() => {
-                            console.log('🔄 Attempting to reconnect...');
-                            setupEnhancedRealtimeSubscription();
-                        }, 5000);
-                    }
-                });
-
-            // Enhanced health check with connection recovery
-            setInterval(async () => {
-                try {
-                    const { error } = await supabaseClient
-                        .from('whatsapp_messages')
-                        .select('id')
-                        .limit(1);
-                    
-                    if (!error) {
-                        updateConnectionStatus(true);
-                    } else {
-                        throw error;
-                    }
-                } catch (e) {
-                    console.warn('🚨 Connection health check failed:', e);
-                    updateConnectionStatus(false);
-                    
-                    // Try to reconnect realtime subscription
-                    if (realtimeChannel) {
-                        console.log('🔄 Reconnecting real-time subscription...');
-                        setupEnhancedRealtimeSubscription();
-                    }
-                }
-            }, 30000);
-        }
-
-        function handleNewMessage(newMessage) {
-            console.log('📥 Processing new message:', newMessage);
+        function filterConversations() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.conversation-item');
             
-            // Flash animation for new message
-            const conversationItem = document.querySelector(`[data-phone="${newMessage.phone_number}"]`);
-            if (conversationItem) {
-                conversationItem.classList.add('new-message');
-                setTimeout(() => {
-                    conversationItem.classList.remove('new-message');
-                }, 1000);
-            }
-
-            // Update conversation in real-time and increment unread if not current conversation
-            updateConversationInPlace(newMessage);
-            
-            // If this message is for the currently selected conversation, add to chat immediately
-            if (selectedConversation === newMessage.phone_number) {
-                addMessageToChat(newMessage);
-                // Mark as read since user is viewing this conversation
-                markConversationAsRead(newMessage.phone_number);
-            } else {
-                // Increment unread count for other conversations
-                incrementUnreadCount(newMessage.phone_number);
-            }
-
-            // Show typing indicator briefly for customer messages (AI might respond)
-            if (newMessage.sender_type === 'customer') {
-                showTypingIndicator(newMessage.phone_number);
-            }
-        }
-
-        function handleMessageUpdate(updatedMessage) {
-            // Handle message status updates (delivered, read, etc.)
-            if (selectedConversation === updatedMessage.phone_number) {
-                updateMessageInChat(updatedMessage);
-            }
-        }
-
-        function updateConversationInPlace(newMessage) {
-            // Debounce conversation list updates
-            clearTimeout(conversationUpdateTimeout);
-            conversationUpdateTimeout = setTimeout(() => {
-                // Find and update the specific conversation
-                const convIndex = conversations.findIndex(c => c.phone_number === newMessage.phone_number);
+            items.forEach(item => {
+                const name = item.querySelector('.customer-name').textContent.toLowerCase();
+                const phone = item.querySelector('.phone-number').textContent.toLowerCase();
+                const message = item.querySelector('.last-message').textContent.toLowerCase();
                 
-                if (convIndex >= 0) {
-                    // Update existing conversation
-                    conversations[convIndex] = {
-                        ...conversations[convIndex],
-                        last_message: newMessage.message_text,
-                        last_timestamp: newMessage.timestamp,
-                        last_sender: newMessage.sender_type,
-                        customer_name: newMessage.customer_name || conversations[convIndex].customer_name,
-                        customer_avatar_url: newMessage.customer_avatar_url || conversations[convIndex].customer_avatar_url
-                    };
-                    
-                    // Move to top
-                    const updated = conversations.splice(convIndex, 1)[0];
-                    conversations.unshift(updated);
+                if (name.includes(searchTerm) || phone.includes(searchTerm) || message.includes(searchTerm)) {
+                    item.style.display = 'flex';
                 } else {
-                    // Add new conversation
-                    conversations.unshift({
-                        phone_number: newMessage.phone_number,
-                        customer_name: newMessage.customer_name || newMessage.phone_number,
-                        wa_id: newMessage.wa_id || newMessage.phone_number,
-                        customer_avatar_url: newMessage.customer_avatar_url,
-                        last_message: newMessage.message_text,
-                        last_timestamp: newMessage.timestamp,
-                        last_sender: newMessage.sender_type,
-                        thread_id: newMessage.thread_id,
-                        unread_count: 0
-                    });
+                    item.style.display = 'none';
                 }
-                
-                renderConversations();
-            }, 100); // Small debounce to handle rapid messages
+            });
         }
 
-        function incrementUnreadCount(phoneNumber) {
-            const convIndex = conversations.findIndex(c => c.phone_number === phoneNumber);
-            if (convIndex >= 0) {
-                conversations[convIndex].unread_count = (conversations[convIndex].unread_count || 0) + 1;
-                renderConversations();
-            }
-        }
-
-        function markConversationAsRead(phoneNumber) {
-            const convIndex = conversations.findIndex(c => c.phone_number === phoneNumber);
-            if (convIndex >= 0) {
-                conversations[convIndex].unread_count = 0;
-                renderConversations();
-            }
-        }
-
-        function addMessageToChat(message) {
-            const messagesContainer = document.getElementById('messages');
-            if (!messagesContainer) return;
-
-            // Check if message already exists
-            if (document.querySelector(`[data-message-id="${message.id}"]`)) {
-                return;
-            }
-
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${message.sender_type}`;
-            messageElement.setAttribute('data-message-id', message.id);
-            messageElement.innerHTML = `
-                <div class="message-text">${message.message_text}</div>
-                <div class="message-time-stamp">${formatTime(message.timestamp)}</div>
-            `;
-
-            messagesContainer.appendChild(messageElement);
-            
-            // Smooth scroll to new message
-            messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-
-        function updateMessageInChat(message) {
-            const messageElement = document.querySelector(`[data-message-id="${message.id}"]`);
-            if (messageElement) {
-                messageElement.querySelector('.message-text').textContent = message.message_text;
-                messageElement.querySelector('.message-time-stamp').textContent = formatTime(message.timestamp);
-            }
-        }
-
-        function showTypingIndicator(phoneNumber) {
-            const indicator = document.getElementById(`typing-${phoneNumber}`);
-            if (indicator) {
-                indicator.style.display = 'block';
-                // Hide after 3 seconds
-                setTimeout(() => {
-                    indicator.style.display = 'none';
-                }, 3000);
-            }
-        }
-
+        // Utility functions
         function getInitials(name) {
             if (!name || name.includes('+')) return '👤';
             const parts = name.trim().split(/\s+/);
@@ -1278,37 +1159,42 @@
             return `Active ${Math.floor(diffDays)} days ago`;
         }
 
-        function filterConversations() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const items = document.querySelectorAll('.conversation-item');
-            
-            items.forEach(item => {
-                const name = item.querySelector('.customer-name').textContent.toLowerCase();
-                const phone = item.querySelector('.phone-number').textContent.toLowerCase();
-                const message = item.querySelector('.last-message').textContent.toLowerCase();
-                
-                if (name.includes(searchTerm) || phone.includes(searchTerm) || message.includes(searchTerm)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
-
         // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
-            if (realtimeChannel) {
-                realtimeChannel.unsubscribe();
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
             }
         });
 
-        // Load Supabase library and initialize
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js';
-        script.onload = () => {
-            initializeDashboard();
-        };
-        document.head.appendChild(script);
+        // Load Supabase library with cache-busting
+        function loadSupabaseLibrary() {
+            console.log('📚 Loading Supabase library...');
+            
+            const script = document.createElement('script');
+            // Add timestamp to bust cache
+            script.src = `https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js?v=${Date.now()}`;
+            
+            script.onload = () => {
+                console.log('✅ Supabase library loaded successfully');
+                // Verify the library actually loaded
+                if (typeof supabase !== 'undefined' && supabase.createClient) {
+                    initializeDashboard();
+                } else {
+                    console.error('❌ Supabase object not found after loading');
+                    showConnectionError('Library loaded but Supabase object not available');
+                }
+            };
+            
+            script.onerror = () => {
+                console.error('❌ Failed to load Supabase library');
+                showConnectionError('Cannot load Supabase library - check your internet connection');
+            };
+            
+            document.head.appendChild(script);
+        }
+
+        // Start loading
+        loadSupabaseLibrary();
     </script>
 </body>
 </html>
