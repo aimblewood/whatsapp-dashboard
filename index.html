@@ -624,17 +624,30 @@
         async function initializeDashboard() {
             console.log('🚀 Starting dashboard initialization...');
             
+            // Update UI immediately
+            document.getElementById('conversations').innerHTML = '<div class="loading">Checking credentials...</div>';
+            
             // Check for saved credentials
             const supabaseUrl = localStorage.getItem('supabase_url');
             const supabaseKey = localStorage.getItem('supabase_key');
             const phoneNumberId = localStorage.getItem('phone_number_id');
             const accessToken = localStorage.getItem('access_token');
 
+            console.log('📋 Credentials check:', {
+                hasUrl: !!supabaseUrl,
+                hasKey: !!supabaseKey,
+                hasPhoneId: !!phoneNumberId,
+                hasToken: !!accessToken
+            });
+
             if (!supabaseUrl || !supabaseKey) {
                 console.log('❌ No saved credentials found');
+                document.getElementById('conversations').innerHTML = '<div class="loading">No credentials found</div>';
                 showSettings();
                 return;
             }
+
+            document.getElementById('conversations').innerHTML = '<div class="loading">Initializing Supabase client...</div>';
 
             // Store WhatsApp config
             whatsappConfig = {
@@ -644,9 +657,19 @@
 
             try {
                 console.log('🔌 Initializing Supabase client...');
+                console.log('📍 Using URL:', supabaseUrl);
+                
+                // Check if supabase is available
+                if (typeof supabase === 'undefined') {
+                    throw new Error('Supabase library not loaded');
+                }
+
                 // Initialize Supabase client
                 const { createClient } = supabase;
                 supabaseClient = createClient(supabaseUrl, supabaseKey);
+                console.log('✅ Supabase client created');
+                
+                document.getElementById('conversations').innerHTML = '<div class="loading">Testing database connection...</div>';
                 
                 // Test the connection first
                 console.log('🧪 Testing database connection...');
@@ -656,10 +679,12 @@
                     .limit(1);
 
                 if (error) {
+                    console.error('❌ Database test failed:', error);
                     throw new Error(`Database connection failed: ${error.message}`);
                 }
 
                 console.log('✅ Database connection successful');
+                document.getElementById('conversations').innerHTML = '<div class="loading">Loading conversations...</div>';
                 updateConnectionStatus(true);
                 
                 // Load conversations
@@ -854,11 +879,11 @@
             location.reload(true);
         }
 
-        function updateConnectionStatus(connected) {
+        function updateConnectionStatus(connected, statusText = null) {
             const status = document.getElementById('connectionStatus');
             if (connected) {
                 status.classList.remove('disconnected');
-                status.title = 'Connected - Updates every 30 seconds';
+                status.title = statusText || 'Connected - Updates every 30 seconds';
                 console.log('🟢 Connection status: CONNECTED');
             } else {
                 status.classList.add('disconnected');
@@ -1075,9 +1100,11 @@
                 </div>
             `;
 
-            // Scroll to bottom smoothly
+            // Scroll to bottom with smooth animation
             const messagesContainer = document.getElementById('messages');
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
 
             // Focus on input and set up listeners
             const messageInput = document.getElementById('messageInput');
@@ -1298,31 +1325,36 @@
             }
         });
 
-        // Load Supabase library with cache-busting
+        // Load Supabase library with detailed logging
         function loadSupabaseLibrary() {
-            console.log('📚 Loading Supabase library...');
+            console.log('📚 Starting Supabase library load...');
             
             const script = document.createElement('script');
             // Add timestamp to bust cache
             script.src = `https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js?v=${Date.now()}`;
             
             script.onload = () => {
-                console.log('✅ Supabase library loaded successfully');
+                console.log('✅ Supabase script loaded successfully');
+                console.log('🔍 Checking supabase object...');
+                
                 // Verify the library actually loaded
                 if (typeof supabase !== 'undefined' && supabase.createClient) {
+                    console.log('✅ Supabase object verified, starting initialization');
                     initializeDashboard();
                 } else {
                     console.error('❌ Supabase object not found after loading');
+                    console.log('Available globals:', Object.keys(window).filter(k => k.toLowerCase().includes('supabase')));
                     showConnectionError('Library loaded but Supabase object not available');
                 }
             };
             
-            script.onerror = () => {
-                console.error('❌ Failed to load Supabase library');
+            script.onerror = (error) => {
+                console.error('❌ Failed to load Supabase library:', error);
                 showConnectionError('Cannot load Supabase library - check your internet connection');
             };
             
             document.head.appendChild(script);
+            console.log('📡 Supabase script tag added to document');
         }
 
         // Start loading
