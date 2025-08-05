@@ -292,26 +292,32 @@
     </div>
 
     <script>
-        console.log('🚀 JavaScript loaded successfully');
+        console.log('🚀 JavaScript started');
 
-        // Basic functions that always work
+        // Test basic functionality first
         function showSettings() {
-            console.log('Opening settings...');
+            console.log('Settings button clicked');
+            document.getElementById('setupModal').style.display = 'flex';
             
             // Pre-fill with existing values
-            document.getElementById('supabaseUrl').value = localStorage.getItem('supabase_url') || '';
-            document.getElementById('supabaseKey').value = localStorage.getItem('supabase_key') || '';
-            document.getElementById('phoneNumberId').value = localStorage.getItem('phone_number_id') || '';
-            document.getElementById('accessToken').value = localStorage.getItem('access_token') || '';
-            
-            document.getElementById('setupModal').style.display = 'flex';
+            try {
+                document.getElementById('supabaseUrl').value = localStorage.getItem('supabase_url') || '';
+                document.getElementById('supabaseKey').value = localStorage.getItem('supabase_key') || '';
+                document.getElementById('phoneNumberId').value = localStorage.getItem('phone_number_id') || '';
+                document.getElementById('accessToken').value = localStorage.getItem('access_token') || '';
+            } catch (e) {
+                console.error('Error pre-filling form:', e);
+            }
         }
 
         function closeSettings() {
+            console.log('Closing settings');
             document.getElementById('setupModal').style.display = 'none';
         }
 
         function saveSettings() {
+            console.log('Saving settings...');
+            
             const supabaseUrl = document.getElementById('supabaseUrl').value.trim();
             const supabaseKey = document.getElementById('supabaseKey').value.trim();
             const phoneNumberId = document.getElementById('phoneNumberId').value.trim();
@@ -322,110 +328,160 @@
                 return;
             }
 
-            // Save to localStorage
-            localStorage.setItem('supabase_url', supabaseUrl);
-            localStorage.setItem('supabase_key', supabaseKey);
-            localStorage.setItem('phone_number_id', phoneNumberId);
-            localStorage.setItem('access_token', accessToken);
-
-            closeSettings();
-            console.log('Settings saved, reloading...');
-            location.reload();
+            try {
+                localStorage.setItem('supabase_url', supabaseUrl);
+                localStorage.setItem('supabase_key', supabaseKey);
+                localStorage.setItem('phone_number_id', phoneNumberId);
+                localStorage.setItem('access_token', accessToken);
+                
+                console.log('Settings saved successfully');
+                closeSettings();
+                location.reload();
+            } catch (e) {
+                console.error('Error saving settings:', e);
+                alert('Error saving settings: ' + e.message);
+            }
         }
 
         function clearEverything() {
+            console.log('Clear everything clicked');
             if (confirm('This will delete all saved settings. Continue?')) {
-                localStorage.clear();
-                sessionStorage.clear();
-                console.log('All data cleared, reloading...');
-                location.reload();
+                try {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    console.log('All data cleared');
+                    location.reload();
+                } catch (e) {
+                    console.error('Error clearing data:', e);
+                    location.reload();
+                }
             }
         }
 
         function testCDN() {
             console.log('Testing CDN access...');
-            window.open('https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js', '_blank');
+            try {
+                window.open('https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js', '_blank');
+            } catch (e) {
+                console.error('Error opening CDN test:', e);
+            }
         }
 
-        // Try to load Supabase library
-        function loadSupabase() {
-            console.log('📚 Loading Supabase library...');
+        // Simple status update
+        function updateStatus(message, isError = false) {
+            const statusDiv = document.querySelector('.conversations .loading');
+            if (statusDiv) {
+                statusDiv.innerHTML = `
+                    <div style="color: ${isError ? 'red' : 'green'}; margin-bottom: 10px;">
+                        ${message}
+                    </div>
+                    ${isError ? '<button class="btn info" onclick="showSettings()">Check Settings</button>' : ''}
+                `;
+            }
+        }
+
+        // Try to load and initialize
+        function startInitialization() {
+            console.log('🔄 Starting initialization...');
+            updateStatus('Loading Supabase library...');
             
+            // Check if we already have stored credentials
+            const hasCredentials = localStorage.getItem('supabase_url') && localStorage.getItem('supabase_key');
+            console.log('Has stored credentials:', hasCredentials);
+            
+            if (!hasCredentials) {
+                updateStatus('No credentials found - click Settings to configure', true);
+                return;
+            }
+            
+            // Try to load Supabase
             const script = document.createElement('script');
             script.src = 'https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js';
             
             script.onload = function() {
-                console.log('✅ Supabase library loaded');
-                if (typeof supabase !== 'undefined') {
-                    initializeDashboard();
-                } else {
-                    showError('Supabase object not found');
+                console.log('✅ Supabase script loaded');
+                
+                try {
+                    if (typeof supabase === 'undefined') {
+                        throw new Error('Supabase object not found');
+                    }
+                    
+                    updateStatus('Supabase loaded - testing connection...');
+                    testConnection();
+                    
+                } catch (e) {
+                    console.error('Supabase initialization error:', e);
+                    updateStatus('Error: ' + e.message, true);
                 }
             };
             
-            script.onerror = function() {
-                console.error('❌ Failed to load Supabase library');
-                showError('Failed to load Supabase library');
+            script.onerror = function(e) {
+                console.error('Failed to load Supabase:', e);
+                updateStatus('Failed to load Supabase library', true);
             };
             
             document.head.appendChild(script);
         }
 
-        function showError(message) {
-            document.querySelector('.conversations .loading').innerHTML = `
-                <div style="color: red;">❌ Error: ${message}</div>
-                <button class="btn info" onclick="showSettings()" style="margin-top: 10px;">Check Settings</button>
-                <button class="btn success" onclick="location.reload()" style="margin-top: 10px;">Try Again</button>
-            `;
-        }
-
-        function initializeDashboard() {
-            console.log('🚀 Initializing dashboard...');
+        function testConnection() {
+            console.log('🧪 Testing database connection...');
             
-            const supabaseUrl = localStorage.getItem('supabase_url');
-            const supabaseKey = localStorage.getItem('supabase_key');
-
-            if (!supabaseUrl || !supabaseKey) {
-                console.log('No credentials found');
-                showSettings();
-                return;
-            }
-
             try {
+                const supabaseUrl = localStorage.getItem('supabase_url');
+                const supabaseKey = localStorage.getItem('supabase_key');
+                
                 const { createClient } = supabase;
                 const client = createClient(supabaseUrl, supabaseKey);
                 
-                document.querySelector('.conversations .loading').textContent = 'Dashboard loaded successfully!';
-                document.getElementById('connectionStatus').classList.add('connected');
+                updateStatus('Testing database query...');
                 
-                console.log('✅ Dashboard initialized successfully');
-                
-                // You can add your actual dashboard functionality here
-                loadConversations(client);
-                
-            } catch (error) {
-                console.error('Initialization error:', error);
-                showError(error.message);
+                // Test with a simple query
+                client
+                    .from('whatsapp_messages')
+                    .select('id')
+                    .limit(1)
+                    .then(({ data, error }) => {
+                        if (error) {
+                            console.error('Database test failed:', error);
+                            updateStatus('Database error: ' + error.message, true);
+                        } else {
+                            console.log('✅ Database connection successful');
+                            updateStatus('✅ Connected successfully! Dashboard is working.');
+                            document.getElementById('connectionStatus').classList.add('connected');
+                            
+                            // Now you can add your full dashboard functionality
+                            loadFullDashboard(client);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Connection test error:', err);
+                        updateStatus('Connection test failed: ' + err.message, true);
+                    });
+                    
+            } catch (e) {
+                console.error('Connection setup error:', e);
+                updateStatus('Setup error: ' + e.message, true);
             }
         }
 
-        function loadConversations(client) {
-            // Placeholder for your conversation loading logic
-            document.querySelector('.conversations .loading').innerHTML = `
-                <div style="color: green;">✅ Connected to database!</div>
-                <div style="font-size: 14px; margin-top: 10px;">
-                    Dashboard is working. Your full functionality will be restored here.
-                </div>
-            `;
+        function loadFullDashboard(client) {
+            console.log('🚀 Loading full dashboard functionality...');
+            updateStatus('Dashboard ready! Loading conversations...');
+            
+            // Here you can add your conversation loading and real-time features
+            // For now, just show success
+            setTimeout(() => {
+                updateStatus('✅ Dashboard loaded successfully! (Full features can be added here)');
+            }, 1000);
         }
 
-        // Start the loading process
-        setTimeout(() => {
-            console.log('Starting Supabase load...');
-            loadSupabase();
-        }, 1000);
+        // Auto-start after page loads
+        window.addEventListener('load', function() {
+            console.log('Page loaded, starting initialization in 2 seconds...');
+            setTimeout(startInitialization, 2000);
+        });
 
-        console.log('🎯 Script loaded, starting in 1 second...');
+        console.log('🎯 All functions loaded');
     </script>
 </body>
 </html>
