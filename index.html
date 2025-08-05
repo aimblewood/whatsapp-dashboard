@@ -93,7 +93,8 @@
 
         .sidebar-actions {
             display: flex;
-            gap: 8px;
+            gap: 4px;
+            align-items: center;
         }
 
         .action-btn {
@@ -101,15 +102,16 @@
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            padding: 8px;
+            padding: 6px;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
             transition: background-color 0.2s;
+            flex-shrink: 0;
         }
 
         .action-btn:hover {
@@ -121,15 +123,16 @@
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            padding: 8px;
+            padding: 6px;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             transition: all 0.3s ease;
+            flex-shrink: 0;
         }
 
         .theme-toggle:hover {
@@ -557,7 +560,7 @@
         }
 
         .send-button {
-            background: #00a884;
+            background: var(--accent-color);
             border: none;
             border-radius: 50%;
             width: 42px;
@@ -574,7 +577,7 @@
         }
 
         .send-button:disabled {
-            background: #3b4a54;
+            background: var(--text-secondary);
             cursor: not-allowed;
         }
 
@@ -590,9 +593,9 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            color: #8696a0;
+            color: var(--text-secondary);
             text-align: center;
-            background: #0b141a;
+            background: var(--bg-chat);
         }
 
         .loading-state {
@@ -600,7 +603,7 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            color: #8696a0;
+            color: var(--text-secondary);
             font-size: 14px;
         }
 
@@ -706,18 +709,18 @@
 
         .conversations::-webkit-scrollbar-track,
         .messages-container::-webkit-scrollbar-track {
-            background: #111b21;
+            background: var(--bg-primary);
         }
 
         .conversations::-webkit-scrollbar-thumb,
         .messages-container::-webkit-scrollbar-thumb {
-            background: #3b4a54;
+            background: var(--text-secondary);
             border-radius: 3px;
         }
 
         .conversations::-webkit-scrollbar-thumb:hover,
         .messages-container::-webkit-scrollbar-thumb:hover {
-            background: #4a5660;
+            background: var(--text-muted);
         }
 
         /* Connection status indicator */
@@ -732,7 +735,7 @@
         }
 
         .connection-status.connected {
-            background: #00a884;
+            background: var(--accent-color);
             animation: pulse 2s infinite;
         }
 
@@ -754,6 +757,9 @@
                     <button class="action-btn" title="Communities">👥</button>
                     <button class="action-btn" title="Status">⭕</button>
                     <button class="action-btn" title="New chat">💬</button>
+                    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
+                        🌙
+                    </button>
                     <button class="action-btn" onclick="showSettings()" title="Settings">⚙️</button>
                 </div>
             </div>
@@ -818,6 +824,32 @@
         let conversations = [];
         let selectedConversation = null;
         let refreshInterval = null;
+        let currentTheme = localStorage.getItem('theme') || 'dark';
+
+        // Initialize theme
+        function initializeTheme() {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            updateThemeIcon();
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            updateThemeIcon();
+            console.log(`🎨 Theme switched to: ${currentTheme}`);
+        }
+
+        function updateThemeIcon() {
+            const themeBtn = document.getElementById('themeToggle');
+            if (themeBtn) {
+                themeBtn.innerHTML = currentTheme === 'dark' ? '☀️' : '🌙';
+                themeBtn.title = currentTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+                console.log(`🎨 Theme icon updated: ${themeBtn.innerHTML}`);
+            } else {
+                console.log('❌ Theme button not found');
+            }
+        }
 
         function showSettings() {
             console.log('Opening settings...');
@@ -1377,6 +1409,9 @@
 
         // Initialize when Supabase loads
         function loadSupabaseAndStart() {
+            // Initialize theme first
+            initializeTheme();
+            
             const script = document.createElement('script');
             script.src = 'https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js';
             
