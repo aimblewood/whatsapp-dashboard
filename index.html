@@ -578,6 +578,37 @@
             </div>
             <div class="conversations" id="conversations">
                 <div class="loading">Initializing dashboard...</div>
+                
+                <!-- Immediate troubleshooting options (no JavaScript required) -->
+                <div class="troubleshoot-box" style="margin: 20px;">
+                    <h4>🛠️ Dashboard Stuck? Try These:</h4>
+                    
+                    <div style="margin: 15px 0;">
+                        <button onclick="location.reload()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 5px;">
+                            🔄 Hard Refresh
+                        </button>
+                        <button onclick="showSettings()" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 5px;">
+                            ⚙️ Settings
+                        </button>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <button onclick="clearStorageAndReload()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 5px;">
+                            🗑️ Clear Cache
+                        </button>
+                        <button onclick="window.open('https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js', '_blank')" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 5px;">
+                            🧪 Test CDN
+                        </button>
+                    </div>
+                    
+                    <div style="font-size: 12px; color: #666; margin-top: 10px;">
+                        <strong>If stuck for more than 10 seconds:</strong><br>
+                        1. Try "Hard Refresh" first<br>
+                        2. Check "Test CDN" - should show JavaScript code<br>
+                        3. Try different browser/incognito mode<br>
+                        4. Clear cache if nothing else works
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1483,7 +1514,21 @@
             alert('Manual mode would require a different implementation. For now, try the other options or contact support.');
         }
 
+        // Simple functions that work without external libraries
+        function clearStorageAndReload() {
+            console.log('🗑️ Clearing storage...');
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                location.reload(true);
+            } catch (e) {
+                alert('Could not clear storage: ' + e.message);
+                location.reload();
+            }
+        }
+
         // Start loading
+        console.log('🚀 Starting dashboard...');
         loadSupabaseLibrary();
     </script>
 </body>
