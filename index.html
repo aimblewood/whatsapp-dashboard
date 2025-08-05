@@ -12,10 +12,47 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-primary);
             height: 100vh;
             overflow: hidden;
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* THEME VARIABLES */
+        :root {
+            /* Dark theme (default) */
+            --bg-primary: #111b21;
+            --bg-secondary: #202c33;
+            --bg-tertiary: #2a3942;
+            --bg-chat: #0b141a;
+            --bg-message-incoming: #202c33;
+            --bg-message-outgoing: #005c4b;
+            --bg-input: #2a3942;
+            --border-color: #313640;
+            --text-primary: #e9edef;
+            --text-secondary: #8696a0;
+            --text-muted: #aebac1;
+            --accent-color: #00a884;
+            --hover-overlay: rgba(255,255,255,0.1);
+        }
+
+        [data-theme="light"] {
+            /* Light theme */
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f7f8fa;
+            --bg-chat: #efeae2;
+            --bg-message-incoming: #ffffff;
+            --bg-message-outgoing: #d9fdd3;
+            --bg-input: #ffffff;
+            --border-color: #e1e7ed;
+            --text-primary: #111b21;
+            --text-secondary: #54656f;
+            --text-muted: #667781;
+            --accent-color: #00a884;
+            --hover-overlay: rgba(0,0,0,0.05);
         }
 
         .dashboard {
@@ -23,195 +60,304 @@
             height: 100vh;
         }
 
+        /* LEFT SIDEBAR */
         .sidebar {
-            width: 350px;
-            background: white;
-            border-right: 1px solid #e0e0e0;
+            width: 400px;
+            background: var(--bg-primary);
             display: flex;
             flex-direction: column;
+            border-right: 1px solid var(--border-color);
         }
 
-        .header {
-            background: #20B2AA;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
+        .sidebar-header {
+            background: var(--bg-secondary);
+            padding: 20px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 70px;
         }
 
-        .header h1 {
-            font-size: 18px;
-            font-weight: 500;
-        }
-
-        .connection-status {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            width: 10px;
-            height: 10px;
+        .user-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: #f44336;
-        }
-
-        .connection-status.connected {
-            background: #4CAF50;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .settings-btn {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            border: none;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .sidebar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
             padding: 8px;
             border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--hover-overlay);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-muted);
             cursor: pointer;
-            width: 36px;
-            height: 36px;
+            padding: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
         }
 
-        .search-bar {
-            padding: 15px;
-            border-bottom: 1px solid #e0e0e0;
+        .theme-toggle:hover {
+            background: var(--hover-overlay);
+            transform: rotate(180deg);
         }
 
-        .search-bar input {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
+        .search-container {
+            padding: 8px 12px;
+            background: #111b21;
+        }
+
+        .search-wrapper {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-icon {
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        .search-input {
+            background: none;
+            border: none;
             outline: none;
+            color: var(--text-primary);
             font-size: 14px;
+            flex: 1;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .filter-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 16px;
+        }
+
+        .archived-section {
+            padding: 16px;
+            border-bottom: 1px solid #313640;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .archived-section:hover {
+            background: var(--bg-secondary);
+        }
+
+        .archived-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--accent-color);
+        }
+
+        .archived-text {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 400;
         }
 
         .conversations {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            background: var(--bg-primary);
         }
 
         .conversation-item {
             display: flex;
             align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 12px 16px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.1s;
+            position: relative;
+            min-height: 72px;
         }
 
         .conversation-item:hover {
-            background-color: #f8f8f8;
+            background: var(--bg-secondary);
         }
 
         .conversation-item.active {
-            background-color: #e3f2fd;
+            background: var(--bg-tertiary);
         }
 
-        .avatar {
-            width: 48px;
-            height: 48px;
+        .contact-avatar {
+            width: 49px;
+            height: 49px;
             border-radius: 50%;
-            margin-right: 12px;
+            margin-right: 15px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .contact-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .contact-avatar .initials {
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 16px;
+            font-weight: 500;
             color: white;
-            flex-shrink: 0;
+            font-size: 18px;
         }
 
-        .conversation-info {
+        .conversation-content {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .conversation-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .contact-name {
+            color: var(--text-primary);
+            font-size: 17px;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .message-time {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 400;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .conversation-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .last-message-content {
             flex: 1;
             min-width: 0;
         }
 
-        .customer-name {
-            font-weight: 600;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 2px;
-        }
-
-        .phone-number {
-            font-size: 12px;
-            color: #999;
-            font-weight: normal;
-            margin-left: 8px;
-        }
-
         .last-message {
+            color: var(--text-secondary);
             font-size: 14px;
-            color: #666;
+            font-weight: 400;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            line-height: 1.2;
         }
 
-        .message-time {
-            font-size: 12px;
-            color: #999;
+        .conversation-badges {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             flex-shrink: 0;
-            margin-left: 8px;
         }
 
-        .messages {
+        .tag-badge {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .unread-count {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        /* RIGHT CHAT AREA */
+        .chat-area {
             flex: 1;
-            overflow-y: auto;
-            padding: 40px 60px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><defs><pattern id="chat-bg" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23chat-bg)"/></svg>');
-        }
-
-        .message {
-            max-width: 65%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            word-wrap: break-word;
-            position: relative;
-            margin-bottom: 2px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .message.customer {
-            background: white;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message.ai {
-            background: #dcf8c6;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message-time-stamp {
-            font-size: 11px;
-            color: #666;
-            margin-top: 6px;
-            text-align: right;
-            opacity: 0.7;
+            background: var(--bg-chat);
         }
 
         .chat-header {
-            background: #20B2AA;
-            color: white;
-            padding: 15px 20px;
+            background: var(--bg-secondary);
+            padding: 16px 20px;
             display: flex;
             align-items: center;
-            border-bottom: 1px solid #1a9a94;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-contact-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
         }
 
         .chat-avatar {
@@ -219,151 +365,253 @@
             height: 40px;
             border-radius: 50%;
             margin-right: 12px;
+            overflow: hidden;
+        }
+
+        .chat-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chat-avatar .initials {
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
+            font-weight: 500;
             color: white;
-            flex-shrink: 0;
+            font-size: 16px;
         }
 
-        .chat-info h2 {
+        .chat-contact-details h2 {
+            color: #e9edef;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 400;
+            margin-bottom: 1px;
+        }
+
+        .chat-contact-status {
+            color: #8696a0;
+            font-size: 13px;
+            font-weight: 400;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-action-btn {
+            background: none;
+            border: none;
+            color: #aebac1;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .chat-action-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            background: #0b141a;
+            padding: 12px 80px 12px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .message-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 12px;
+        }
+
+        .message-bubble {
+            max-width: 65%;
+            padding: 6px 7px 8px 9px;
+            border-radius: 7.5px;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 14.2px;
+            line-height: 1.4;
+        }
+
+        .message-bubble.incoming {
+            background: var(--bg-message-incoming);
+            color: var(--text-primary);
+            align-self: flex-start;
             margin-bottom: 2px;
         }
 
-        .chat-info .status {
-            font-size: 12px;
-            opacity: 0.8;
+        .message-bubble.outgoing {
+            background: var(--bg-message-outgoing);
+            color: var(--text-primary);
+            align-self: flex-end;
+            margin-bottom: 2px;
         }
 
-        .chat-input-area {
-            background: white;
-            padding: 15px 20px;
-            border-top: 1px solid #e0e0e0;
+        .message-text {
+            margin-bottom: 4px;
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            font-size: 11px;
+            color: rgba(233, 237, 239, 0.6);
+            margin-top: 4px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: rgba(233, 237, 239, 0.6);
+        }
+
+        .message-status {
+            font-size: 16px;
+            color: #53bdeb;
+        }
+
+        .input-area {
+            background: #202c33;
+            padding: 10px 16px;
             display: flex;
             align-items: flex-end;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .input-container {
+        .input-actions-left {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-btn {
+            background: none;
+            border: none;
+            color: #8696a0;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: background-color 0.2s;
+        }
+
+        .input-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .input-field-container {
             flex: 1;
+            background: #2a3942;
+            border-radius: 21px;
             display: flex;
             align-items: flex-end;
-            background: #f5f5f5;
-            border-radius: 20px;
-            padding: 5px;
-            border: 1px solid #e0e0e0;
+            min-height: 42px;
+            max-height: 120px;
+            padding: 8px 12px;
         }
 
         .message-input {
             flex: 1;
-            border: none;
-            outline: none;
-            background: transparent;
-            padding: 10px 15px;
-            font-size: 14px;
-            font-family: inherit;
-            resize: none;
-            max-height: 120px;
-            min-height: 20px;
-            line-height: 1.4;
-        }
-
-        .emoji-btn {
             background: none;
             border: none;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 5px 10px;
-            opacity: 0.7;
-            transition: opacity 0.2s;
+            outline: none;
+            color: #e9edef;
+            font-size: 15px;
+            font-family: inherit;
+            line-height: 1.4;
+            resize: none;
+            min-height: 24px;
+            max-height: 100px;
+            padding: 4px 0;
         }
 
-        .send-btn {
-            background: #20B2AA;
+        .message-input::placeholder {
+            color: #8696a0;
+        }
+
+        .input-actions-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .send-button {
+            background: #00a884;
             border: none;
             border-radius: 50%;
-            width: 45px;
-            height: 45px;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: background-color 0.2s;
-            flex-shrink: 0;
         }
 
-        .send-btn:disabled {
-            background: #ccc;
+        .send-button:hover {
+            background: #06b28b;
+        }
+
+        .send-button:disabled {
+            background: #3b4a54;
             cursor: not-allowed;
         }
 
-        .loading {
+        .send-button svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .empty-chat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #8696a0;
             text-align: center;
-            color: #666;
-            font-size: 16px;
+            background: #0b141a;
         }
 
-        .troubleshoot-box {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            color: #856404;
-        }
-
-        .btn {
-            background: #20B2AA;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 5px;
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #8696a0;
             font-size: 14px;
         }
 
-        .btn:hover {
-            background: #1a9a94;
-        }
-
-        .btn.danger {
-            background: #dc3545;
-        }
-
-        .btn.success {
-            background: #28a745;
-        }
-
-        .btn.info {
-            background: #17a2b8;
-        }
-
-        .btn.secondary {
-            background: #6c757d;
-        }
-
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #e5ddd5;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            text-align: center;
-        }
-
+        /* Setup Modal */
         .setup-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             display: none;
             align-items: center;
             justify-content: center;
@@ -371,105 +619,176 @@
         }
 
         .setup-form {
-            background: white;
+            background: #202c33;
             padding: 30px;
-            border-radius: 10px;
+            border-radius: 12px;
             width: 400px;
             max-width: 90vw;
+            color: #e9edef;
         }
 
         .setup-form h2 {
             margin-bottom: 20px;
-            color: #333;
+            color: #e9edef;
             text-align: center;
+            font-weight: 400;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #333;
+            margin-bottom: 6px;
+            font-weight: 400;
+            color: #e9edef;
+            font-size: 14px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 12px;
+            border: 1px solid #3b4a54;
+            border-radius: 6px;
             font-size: 14px;
+            background: #2a3942;
+            color: #e9edef;
         }
 
-        .btn-full {
+        .form-group input:focus {
+            border-color: #00a884;
+            outline: none;
+        }
+
+        .form-group input::placeholder {
+            color: #8696a0;
+        }
+
+        .btn-primary {
+            background: #00a884;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
             width: 100%;
-            padding: 12px;
-            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background: #06b28b;
+        }
+
+        .btn-secondary {
+            background: #3b4a54;
+            color: #e9edef;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: 400;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5660;
+        }
+
+        /* Scrollbar styling */
+        .conversations::-webkit-scrollbar,
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .conversations::-webkit-scrollbar-track,
+        .messages-container::-webkit-scrollbar-track {
+            background: #111b21;
+        }
+
+        .conversations::-webkit-scrollbar-thumb,
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #3b4a54;
+            border-radius: 3px;
+        }
+
+        .conversations::-webkit-scrollbar-thumb:hover,
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: #4a5660;
+        }
+
+        /* Connection status indicator */
+        .connection-status {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f44336;
+        }
+
+        .connection-status.connected {
+            background: #00a884;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
+        <!-- LEFT SIDEBAR -->
         <div class="sidebar">
-            <div class="header">
+            <div class="sidebar-header">
                 <div class="connection-status" id="connectionStatus"></div>
-                <h1>Covase WhatsApp Dashboard</h1>
-                <button class="settings-btn" onclick="showSettings()">⚙️</button>
-            </div>
-            
-            <div class="search-bar">
-                <input type="text" placeholder="Search conversations..." disabled>
-            </div>
-            
-            <div class="conversations">
-                <div class="loading">
-                    Initializing dashboard...
+                <div class="user-avatar">👤</div>
+                <div class="sidebar-actions">
+                    <button class="action-btn" title="Communities">👥</button>
+                    <button class="action-btn" title="Status">⭕</button>
+                    <button class="action-btn" title="New chat">💬</button>
+                    <button class="action-btn" onclick="showSettings()" title="Settings">⚙️</button>
                 </div>
-                
-                <!-- Always visible troubleshooting -->
-                <div class="troubleshoot-box">
-                    <h4>🛠️ Dashboard Stuck?</h4>
-                    <p>If stuck for more than 10 seconds, try these:</p>
-                    
-                    <button class="btn success" onclick="location.reload()">
-                        🔄 Hard Refresh
-                    </button>
-                    
-                    <button class="btn info" onclick="showSettings()">
-                        ⚙️ Check Settings
-                    </button>
-                    
-                    <button class="btn danger" onclick="clearEverything()">
-                        🗑️ Clear All Data
-                    </button>
-                    
-                    <button class="btn secondary" onclick="testCDN()">
-                        🧪 Test CDN Access
-                    </button>
-                    
-                    <div style="font-size: 12px; margin-top: 10px; color: #666;">
-                        <strong>Common fixes:</strong><br>
-                        1. Hard refresh (Ctrl+F5)<br>
-                        2. Try incognito mode<br>
-                        3. Disable ad blockers<br>
-                        4. Check internet connection
-                    </div>
+            </div>
+
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search or start new chat" id="searchInput" oninput="filterConversations()">
+                    <button class="filter-btn" title="Filter">📂</button>
                 </div>
+            </div>
+
+            <div class="archived-section">
+                <div class="archived-icon">📁</div>
+                <span class="archived-text">Archived</span>
+            </div>
+
+            <div class="conversations" id="conversations">
+                <div class="loading-state">Loading conversations...</div>
             </div>
         </div>
 
-        <div class="chat-area">
-            <h3>Welcome to your WhatsApp Dashboard</h3>
-            <p>Complete setup to start using the dashboard</p>
+        <!-- RIGHT CHAT AREA -->
+        <div class="chat-area" id="chatArea">
+            <div class="empty-chat">
+                <h3 style="color: #e9edef; margin-bottom: 8px;">WhatsApp Business Dashboard</h3>
+                <p style="color: #8696a0;">Select a conversation to start messaging</p>
+            </div>
         </div>
     </div>
 
     <!-- Setup Modal -->
     <div class="setup-modal" id="setupModal">
         <div class="setup-form">
-            <h2>Dashboard Setup</h2>
+            <h2>Dashboard Configuration</h2>
             <div class="form-group">
                 <label>Supabase URL:</label>
                 <input type="text" id="supabaseUrl" placeholder="https://your-project.supabase.co">
@@ -486,38 +805,36 @@
                 <label>WhatsApp Access Token:</label>
                 <input type="text" id="accessToken" placeholder="Your WhatsApp access token">
             </div>
-            <button class="btn btn-full" onclick="saveSettings()">Connect Dashboard</button>
-            <button class="btn secondary btn-full" onclick="closeSettings()" style="margin-top: 10px;">Cancel</button>
+            <button class="btn-primary" onclick="saveSettings()">Connect Dashboard</button>
+            <button class="btn-secondary" onclick="closeSettings()">Cancel</button>
         </div>
     </div>
 
     <script>
-        console.log('🚀 JavaScript started');
+        console.log('🚀 WhatsApp Dashboard starting...');
 
-        // Test basic functionality first
+        // Global variables
+        let supabaseClient = null;
+        let conversations = [];
+        let selectedConversation = null;
+        let refreshInterval = null;
+
         function showSettings() {
-            console.log('Settings button clicked');
+            console.log('Opening settings...');
             document.getElementById('setupModal').style.display = 'flex';
             
             // Pre-fill with existing values
-            try {
-                document.getElementById('supabaseUrl').value = localStorage.getItem('supabase_url') || '';
-                document.getElementById('supabaseKey').value = localStorage.getItem('supabase_key') || '';
-                document.getElementById('phoneNumberId').value = localStorage.getItem('phone_number_id') || '';
-                document.getElementById('accessToken').value = localStorage.getItem('access_token') || '';
-            } catch (e) {
-                console.error('Error pre-filling form:', e);
-            }
+            document.getElementById('supabaseUrl').value = localStorage.getItem('supabase_url') || '';
+            document.getElementById('supabaseKey').value = localStorage.getItem('supabase_key') || '';
+            document.getElementById('phoneNumberId').value = localStorage.getItem('phone_number_id') || '';
+            document.getElementById('accessToken').value = localStorage.getItem('access_token') || '';
         }
 
         function closeSettings() {
-            console.log('Closing settings');
             document.getElementById('setupModal').style.display = 'none';
         }
 
         function saveSettings() {
-            console.log('Saving settings...');
-            
             const supabaseUrl = document.getElementById('supabaseUrl').value.trim();
             const supabaseKey = document.getElementById('supabaseKey').value.trim();
             const phoneNumberId = document.getElementById('phoneNumberId').value.trim();
@@ -528,169 +845,82 @@
                 return;
             }
 
-            try {
-                localStorage.setItem('supabase_url', supabaseUrl);
-                localStorage.setItem('supabase_key', supabaseKey);
-                localStorage.setItem('phone_number_id', phoneNumberId);
-                localStorage.setItem('access_token', accessToken);
-                
-                console.log('Settings saved successfully');
-                closeSettings();
-                location.reload();
-            } catch (e) {
-                console.error('Error saving settings:', e);
-                alert('Error saving settings: ' + e.message);
+            localStorage.setItem('supabase_url', supabaseUrl);
+            localStorage.setItem('supabase_key', supabaseKey);
+            localStorage.setItem('phone_number_id', phoneNumberId);
+            localStorage.setItem('access_token', accessToken);
+
+            closeSettings();
+            location.reload();
+        }
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            if (connected) {
+                status.classList.add('connected');
+            } else {
+                status.classList.remove('connected');
             }
         }
 
-        function clearEverything() {
-            console.log('Clear everything clicked');
-            if (confirm('This will delete all saved settings. Continue?')) {
-                try {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    console.log('All data cleared');
-                    location.reload();
-                } catch (e) {
-                    console.error('Error clearing data:', e);
-                    location.reload();
-                }
-            }
-        }
-
-        function testCDN() {
-            console.log('Testing CDN access...');
-            try {
-                window.open('https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js', '_blank');
-            } catch (e) {
-                console.error('Error opening CDN test:', e);
-            }
-        }
-
-        // Simple status update
-        function updateStatus(message, isError = false) {
-            const statusDiv = document.querySelector('.conversations .loading');
-            if (statusDiv) {
-                statusDiv.innerHTML = `
-                    <div style="color: ${isError ? 'red' : 'green'}; margin-bottom: 10px;">
-                        ${message}
-                    </div>
-                    ${isError ? '<button class="btn info" onclick="showSettings()">Check Settings</button>' : ''}
-                `;
-            }
-        }
-
-        // Try to load and initialize
-        function startInitialization() {
-            console.log('🔄 Starting initialization...');
-            updateStatus('Loading Supabase library...');
+        async function initializeDashboard() {
+            console.log('🚀 Initializing dashboard...');
             
-            // Check if we already have stored credentials
-            const hasCredentials = localStorage.getItem('supabase_url') && localStorage.getItem('supabase_key');
-            console.log('Has stored credentials:', hasCredentials);
-            
-            if (!hasCredentials) {
-                updateStatus('No credentials found - click Settings to configure', true);
+            const supabaseUrl = localStorage.getItem('supabase_url');
+            const supabaseKey = localStorage.getItem('supabase_key');
+
+            if (!supabaseUrl || !supabaseKey) {
+                console.log('No credentials found');
+                showSettings();
                 return;
             }
-            
-            // Try to load Supabase
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js';
-            
-            script.onload = function() {
-                console.log('✅ Supabase script loaded');
-                
-                try {
-                    if (typeof supabase === 'undefined') {
-                        throw new Error('Supabase object not found');
-                    }
-                    
-                    updateStatus('Supabase loaded - testing connection...');
-                    testConnection();
-                    
-                } catch (e) {
-                    console.error('Supabase initialization error:', e);
-                    updateStatus('Error: ' + e.message, true);
-                }
-            };
-            
-            script.onerror = function(e) {
-                console.error('Failed to load Supabase:', e);
-                updateStatus('Failed to load Supabase library', true);
-            };
-            
-            document.head.appendChild(script);
-        }
 
-        function testConnection() {
-            console.log('🧪 Testing database connection...');
-            
             try {
-                const supabaseUrl = localStorage.getItem('supabase_url');
-                const supabaseKey = localStorage.getItem('supabase_key');
-                
                 const { createClient } = supabase;
-                const client = createClient(supabaseUrl, supabaseKey);
+                supabaseClient = createClient(supabaseUrl, supabaseKey);
                 
-                updateStatus('Testing database query...');
-                
-                // Test with a simple query
-                client
+                // Test connection
+                const { data, error } = await supabaseClient
                     .from('whatsapp_messages')
                     .select('id')
-                    .limit(1)
-                    .then(({ data, error }) => {
-                        if (error) {
-                            console.error('Database test failed:', error);
-                            updateStatus('Database error: ' + error.message, true);
-                        } else {
-                            console.log('✅ Database connection successful');
-                            updateStatus('✅ Connected successfully! Dashboard is working.');
-                            document.getElementById('connectionStatus').classList.add('connected');
-                            
-                            // Now you can add your full dashboard functionality
-                            loadFullDashboard(client);
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Connection test error:', err);
-                        updateStatus('Connection test failed: ' + err.message, true);
-                    });
-                    
-            } catch (e) {
-                console.error('Connection setup error:', e);
-                updateStatus('Setup error: ' + e.message, true);
-            }
-        }
+                    .limit(1);
 
-        function loadFullDashboard(client) {
-            console.log('🚀 Loading full dashboard functionality...');
-            updateStatus('Dashboard ready! Loading conversations...');
-            
-            // Store the client globally
-            window.supabaseClient = client;
-            window.conversations = [];
-            window.selectedConversation = null;
-            
-            // Load conversations
-            loadConversations();
-            
-            // Set up 30-second refresh
-            setInterval(() => {
-                console.log('⏰ 30-second refresh...');
-                loadConversations();
-            }, 30000);
-            
-            // Set up real-time if possible
-            setupRealtime();
+                if (error) throw error;
+
+                console.log('✅ Database connection successful');
+                updateConnectionStatus(true);
+                
+                // Load conversations
+                await loadConversations();
+                
+                // Set up 30-second refresh
+                refreshInterval = setInterval(async () => {
+                    console.log('⏰ 30-second refresh...');
+                    await loadConversations();
+                }, 30000);
+                
+                // Set up real-time
+                setupRealtime();
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                updateConnectionStatus(false);
+                document.getElementById('conversations').innerHTML = `
+                    <div class="loading-state">
+                        Error: ${error.message}
+                        <br><button onclick="showSettings()" style="margin-top: 10px; padding: 8px 16px; background: #00a884; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            Check Settings
+                        </button>
+                    </div>
+                `;
+            }
         }
 
         async function loadConversations() {
             console.log('📥 Loading conversations...');
             
             try {
-                const { data, error } = await window.supabaseClient
+                const { data, error } = await supabaseClient
                     .from('whatsapp_messages')
                     .select('*')
                     .order('timestamp', { ascending: false });
@@ -715,64 +945,70 @@
                             last_timestamp: message.timestamp,
                             last_sender: message.sender_type,
                             thread_id: message.thread_id,
-                            unread_count: 0
+                            unread_count: 0,
+                            tag_type: message.tag_type || 'customer'
                         });
                     }
                 });
 
-                window.conversations = Array.from(conversationMap.values())
+                conversations = Array.from(conversationMap.values())
                     .sort((a, b) => new Date(b.last_timestamp) - new Date(a.last_timestamp));
 
-                console.log(`📋 Processed ${window.conversations.length} conversations`);
+                console.log(`📋 Processed ${conversations.length} conversations`);
                 renderConversations();
 
             } catch (error) {
                 console.error('❌ Error loading conversations:', error);
-                updateStatus('Error loading conversations: ' + error.message, true);
+                document.getElementById('conversations').innerHTML = 
+                    `<div class="loading-state">Error: ${error.message}</div>`;
             }
         }
 
         function renderConversations() {
-            const container = document.querySelector('.conversations');
+            const container = document.getElementById('conversations');
             
-            if (window.conversations.length === 0) {
-                container.innerHTML = `
-                    <div class="loading">No conversations found</div>
-                    <div class="troubleshoot-box">
-                        <p>No messages in your database yet.</p>
-                        <p style="font-size: 12px; margin-top: 10px;">
-                            Make sure your WhatsApp webhook is sending messages to the 'whatsapp_messages' table.
-                        </p>
-                    </div>
-                `;
+            if (conversations.length === 0) {
+                container.innerHTML = '<div class="loading-state">No conversations yet</div>';
                 return;
             }
 
-            container.innerHTML = window.conversations.map(conv => `
+            container.innerHTML = conversations.map(conv => `
                 <div class="conversation-item" onclick="selectConversation('${conv.phone_number}')" 
                      data-phone="${conv.phone_number}">
-                    <div class="avatar" style="background-color: ${getAvatarColor(conv.customer_name)}">
-                        ${getInitials(conv.customer_name)}
+                    <div class="contact-avatar" style="background-color: ${getAvatarColor(conv.customer_name)}">
+                        ${conv.customer_avatar_url ? 
+                            `<img src="${conv.customer_avatar_url}" alt="${conv.customer_name}">` :
+                            `<div class="initials">${getInitials(conv.customer_name)}</div>`
+                        }
                     </div>
-                    <div class="conversation-info">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                            <div class="customer-name">${conv.customer_name}</div>
-                            <div class="phone-number">${conv.phone_number}</div>
+                    <div class="conversation-content">
+                        <div class="conversation-header">
+                            <div class="contact-name">${conv.customer_name}</div>
+                            <div class="message-time">${formatTime(conv.last_timestamp)}</div>
                         </div>
-                        <div class="last-message">
-                            ${conv.last_sender === 'ai' ? '🤖 ' : ''}${conv.last_message}
+                        <div class="conversation-footer">
+                            <div class="last-message-content">
+                                <div class="last-message">
+                                    ${conv.last_sender === 'ai' ? '✓ ' : ''}${conv.last_message}
+                                </div>
+                            </div>
+                            <div class="conversation-badges">
+                                <span class="tag-badge ${conv.tag_type}">${conv.tag_type}</span>
+                                ${(conv.unread_count && conv.unread_count > 0) ? 
+                                    `<div class="unread-count">${conv.unread_count}</div>` : ''
+                                }
+                            </div>
                         </div>
                     </div>
-                    <div class="message-time">${formatTime(conv.last_timestamp)}</div>
                 </div>
             `).join('');
 
-            console.log(`✅ Rendered ${window.conversations.length} conversations`);
+            console.log(`✅ Rendered ${conversations.length} conversations`);
         }
 
         async function selectConversation(phoneNumber) {
             console.log(`👆 Selected conversation: ${phoneNumber}`);
-            window.selectedConversation = phoneNumber;
+            selectedConversation = phoneNumber;
             
             // Update active state
             document.querySelectorAll('.conversation-item').forEach(item => {
@@ -783,7 +1019,6 @@
                 activeItem.classList.add('active');
             }
 
-            // Load messages for this conversation
             await loadMessages(phoneNumber);
         }
 
@@ -791,7 +1026,7 @@
             console.log(`📨 Loading messages for ${phoneNumber}`);
             
             try {
-                const { data, error } = await window.supabaseClient
+                const { data, error } = await supabaseClient
                     .from('whatsapp_messages')
                     .select('*')
                     .eq('phone_number', phoneNumber)
@@ -800,7 +1035,7 @@
                 if (error) throw error;
 
                 console.log(`💬 Loaded ${data.length} messages`);
-                const conversation = window.conversations.find(c => c.phone_number === phoneNumber);
+                const conversation = conversations.find(c => c.phone_number === phoneNumber);
                 if (conversation) {
                     renderChatArea(conversation, data);
                 }
@@ -811,48 +1046,71 @@
         }
 
         function renderChatArea(conversation, messages) {
-            const chatArea = document.querySelector('.chat-area');
+            const chatArea = document.getElementById('chatArea');
             
             chatArea.innerHTML = `
                 <div class="chat-header">
-                    <div class="chat-avatar" style="background-color: ${getAvatarColor(conversation.customer_name)}">
-                        ${getInitials(conversation.customer_name)}
+                    <div class="chat-contact-info">
+                        <div class="chat-avatar" style="background-color: ${getAvatarColor(conversation.customer_name)}">
+                            ${conversation.customer_avatar_url ? 
+                                `<img src="${conversation.customer_avatar_url}" alt="${conversation.customer_name}">` :
+                                `<div class="initials">${getInitials(conversation.customer_name)}</div>`
+                            }
+                        </div>
+                        <div class="chat-contact-details">
+                            <h2>${conversation.customer_name}</h2>
+                            <div class="chat-contact-status">${getOnlineStatusText(conversation.last_timestamp)}</div>
+                        </div>
                     </div>
-                    <div class="chat-info">
-                        <h2>${conversation.customer_name}</h2>
-                        <div class="status">${conversation.phone_number} • ${getOnlineStatusText(conversation.last_timestamp)}</div>
+                    <div class="chat-actions">
+                        <button class="chat-action-btn" title="Voice call">📞</button>
+                        <button class="chat-action-btn" title="Video call">📹</button>
+                        <button class="chat-action-btn" title="Search">🔍</button>
+                        <button class="chat-action-btn" title="More">⋮</button>
                     </div>
                 </div>
-                <div class="messages" id="messages">
+
+                <div class="messages-container" id="messagesContainer">
                     ${messages.map(msg => `
-                        <div class="message ${msg.sender_type}" data-message-id="${msg.id}">
-                            <div class="message-text">${msg.message_text}</div>
-                            <div class="message-time-stamp">${formatTime(msg.timestamp)}</div>
+                        <div class="message-group">
+                            <div class="message-bubble ${msg.sender_type === 'customer' ? 'incoming' : 'outgoing'}" data-message-id="${msg.id}">
+                                <div class="message-text">${msg.message_text}</div>
+                                <div class="message-meta">
+                                    <span class="message-time">${formatMessageTime(msg.timestamp)}</span>
+                                    ${msg.sender_type === 'ai' ? '<span class="message-status">✓✓</span>' : ''}
+                                </div>
+                            </div>
                         </div>
                     `).join('')}
                 </div>
-                <div class="chat-input-area">
-                    <div class="input-container">
-                        <button class="emoji-btn" onclick="toggleEmojiPicker()">😊</button>
+
+                <div class="input-area">
+                    <div class="input-actions-left">
+                        <button class="input-btn" title="Attach">📎</button>
+                    </div>
+                    <div class="input-field-container">
                         <textarea 
                             class="message-input" 
                             id="messageInput" 
-                            placeholder="Type a message..."
+                            placeholder="Type a message"
                             rows="1"
                             onkeydown="handleInputKeydown(event)"
                             oninput="autoResizeTextarea(this)"
                         ></textarea>
                     </div>
-                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
-                        <svg viewBox="0 0 24 24">
-                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                        </svg>
-                    </button>
+                    <div class="input-actions-right">
+                        <button class="input-btn" onclick="toggleEmojiPicker()" title="Emoji">😊</button>
+                        <button class="send-button" id="sendBtn" onclick="sendMessage()" disabled>
+                            <svg viewBox="0 0 24 24">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             `;
 
             // Scroll to bottom
-            const messagesContainer = document.getElementById('messages');
+            const messagesContainer = document.getElementById('messagesContainer');
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
@@ -860,70 +1118,64 @@
             // Set up input handlers
             const messageInput = document.getElementById('messageInput');
             messageInput.addEventListener('input', updateSendButton);
+            messageInput.focus();
             updateSendButton();
         }
 
         function setupRealtime() {
-            if (!window.supabaseClient) return;
+            if (!supabaseClient) return;
 
-            console.log('🚀 Setting up real-time enhancements...');
+            console.log('🚀 Setting up real-time...');
             
             try {
-                const realtimeChannel = window.supabaseClient
+                const realtimeChannel = supabaseClient
                     .channel('whatsapp_realtime')
                     .on('postgres_changes', 
                         { event: 'INSERT', schema: 'public', table: 'whatsapp_messages' }, 
                         (payload) => {
-                            console.log('🔥 Real-time: New message received!');
+                            console.log('🔥 Real-time: New message!');
                             handleRealtimeMessage(payload.new);
                         }
                     )
-                    .subscribe((status) => {
-                        console.log('📡 Real-time status:', status);
-                        if (status === 'SUBSCRIBED') {
-                            console.log('✅ Real-time active!');
-                        }
-                    });
+                    .subscribe();
 
             } catch (error) {
-                console.warn('⚠️ Real-time setup failed, using 30s refresh:', error);
+                console.warn('⚠️ Real-time setup failed:', error);
             }
         }
 
         function handleRealtimeMessage(newMessage) {
-            console.log(`📥 Processing real-time message: ${newMessage.message_text}`);
-            
             // If viewing this conversation, add message immediately
-            if (window.selectedConversation === newMessage.phone_number) {
+            if (selectedConversation === newMessage.phone_number) {
                 addMessageToChat(newMessage);
             }
 
             // Update conversation list
-            setTimeout(() => {
-                loadConversations();
-            }, 500);
+            setTimeout(loadConversations, 500);
         }
 
         function addMessageToChat(message) {
-            const messagesContainer = document.getElementById('messages');
+            const messagesContainer = document.getElementById('messagesContainer');
             if (!messagesContainer) return;
 
-            // Check if message already exists
             if (document.querySelector(`[data-message-id="${message.id}"]`)) {
                 return;
             }
 
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${message.sender_type}`;
-            messageElement.setAttribute('data-message-id', message.id);
-            messageElement.innerHTML = `
-                <div class="message-text">${message.message_text}</div>
-                <div class="message-time-stamp">${formatTime(message.timestamp)}</div>
+            const messageGroup = document.createElement('div');
+            messageGroup.className = 'message-group';
+            messageGroup.innerHTML = `
+                <div class="message-bubble ${message.sender_type === 'customer' ? 'incoming' : 'outgoing'}" data-message-id="${message.id}">
+                    <div class="message-text">${message.message_text}</div>
+                    <div class="message-meta">
+                        <span class="message-time">${formatMessageTime(message.timestamp)}</span>
+                        ${message.sender_type === 'ai' ? '<span class="message-status">✓✓</span>' : ''}
+                    </div>
+                </div>
             `;
 
-            messagesContainer.appendChild(messageElement);
+            messagesContainer.appendChild(messageGroup);
             
-            // Scroll to bottom
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
@@ -933,27 +1185,23 @@
             const messageInput = document.getElementById('messageInput');
             const sendBtn = document.getElementById('sendBtn');
             
-            if (!messageInput || !window.selectedConversation) return;
+            if (!messageInput || !selectedConversation) return;
             
             const messageText = messageInput.value.trim();
             if (!messageText) return;
-
-            console.log('📤 Sending message:', messageText);
 
             try {
                 sendBtn.disabled = true;
                 messageInput.disabled = true;
                 
-                // Clear input
                 messageInput.value = '';
                 autoResizeTextarea(messageInput);
                 
-                // Save message to database
-                const conversation = window.conversations.find(c => c.phone_number === window.selectedConversation);
-                const { data, error } = await window.supabaseClient
+                const conversation = conversations.find(c => c.phone_number === selectedConversation);
+                const { data, error } = await supabaseClient
                     .from('whatsapp_messages')
                     .insert([{
-                        phone_number: window.selectedConversation,
+                        phone_number: selectedConversation,
                         wa_id: conversation.wa_id,
                         customer_name: conversation.customer_name,
                         message_text: messageText,
@@ -965,23 +1213,18 @@
 
                 if (error) throw error;
 
-                console.log('✅ Message saved to database');
+                console.log('✅ Message saved');
 
-                // Send via WhatsApp API if configured
+                // Send via WhatsApp API
                 const phoneNumberId = localStorage.getItem('phone_number_id');
                 const accessToken = localStorage.getItem('access_token');
                 
                 if (phoneNumberId && accessToken) {
-                    await sendWhatsAppMessage(window.selectedConversation, messageText, phoneNumberId, accessToken);
+                    await sendWhatsAppMessage(selectedConversation, messageText, phoneNumberId, accessToken);
                 }
 
-                // Reload messages to show the new one
-                setTimeout(() => {
-                    loadMessages(window.selectedConversation);
-                }, 500);
-
             } catch (error) {
-                console.error('❌ Error sending message:', error);
+                console.error('❌ Send error:', error);
                 alert('Failed to send message: ' + error.message);
             } finally {
                 messageInput.disabled = false;
@@ -1006,19 +1249,17 @@
                 });
 
                 if (response.ok) {
-                    console.log('✅ Message sent via WhatsApp API');
-                } else {
-                    console.warn('⚠️ WhatsApp API failed:', response.status);
+                    console.log('✅ WhatsApp API success');
                 }
             } catch (error) {
                 console.warn('⚠️ WhatsApp API error:', error);
             }
         }
 
-        // Helper functions
+        // UI Helper functions
         function autoResizeTextarea(textarea) {
             textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
         }
 
         function updateSendButton() {
@@ -1057,6 +1298,23 @@
             }
         }
 
+        function filterConversations() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.conversation-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.contact-name').textContent.toLowerCase();
+                const message = item.querySelector('.last-message').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || message.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Utility functions
         function getInitials(name) {
             if (!name || name.includes('+')) return '👤';
             const parts = name.trim().split(/\s+/);
@@ -1068,8 +1326,8 @@
 
         function getAvatarColor(name) {
             const colors = [
-                '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
-                '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+                '#00a884', '#0088cc', '#8e44ad', '#f39c12', '#e74c3c',
+                '#16a085', '#2980b9', '#8e44ad', '#f39c12', '#27ae60'
             ];
             let hash = 0;
             for (let i = 0; i < name.length; i++) {
@@ -1088,34 +1346,56 @@
                 return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             } else if (diffDays === 1) {
                 return 'Yesterday';
-            } else if (diffDays < 7) {
-                return date.toLocaleDateString([], { weekday: 'short' });
+            } else if (diffDays <= 7) {
+                return date.toLocaleDateString([], { weekday: 'long' });
             } else {
                 return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
             }
+        }
+
+        function formatMessageTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
         }
 
         function getOnlineStatusText(lastTimestamp) {
             const diffMs = new Date() - new Date(lastTimestamp);
             const diffMinutes = diffMs / (1000 * 60);
             
-            if (diffMinutes < 1) return 'Active now';
-            if (diffMinutes < 60) return `Active ${Math.floor(diffMinutes)} minutes ago`;
+            if (diffMinutes < 1) return 'Last seen recently';
+            if (diffMinutes < 60) return `Last seen ${Math.floor(diffMinutes)} minutes ago`;
             
             const diffHours = diffMs / (1000 * 60 * 60);
-            if (diffHours < 24) return `Active ${Math.floor(diffHours)} hours ago`;
+            if (diffHours < 24) return `Last seen ${Math.floor(diffHours)} hours ago`;
             
-            const diffDays = diffMs / (1000 * 60 * 60 * 24);
-            return `Active ${Math.floor(diffDays)} days ago`;
+            return 'Last seen recently';
         }
 
-        // Auto-start after page loads
-        window.addEventListener('load', function() {
-            console.log('Page loaded, starting initialization in 2 seconds...');
-            setTimeout(startInitialization, 2000);
-        });
+        // Initialize when Supabase loads
+        function loadSupabaseAndStart() {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js';
+            
+            script.onload = () => {
+                console.log('✅ Supabase loaded');
+                initializeDashboard();
+            };
+            
+            script.onerror = () => {
+                console.error('❌ Supabase load failed');
+                document.getElementById('conversations').innerHTML = 
+                    '<div class="loading-state">Failed to load libraries</div>';
+            };
+            
+            document.head.appendChild(script);
+        }
 
-        console.log('🎯 All functions loaded');
+        // Start loading
+        loadSupabaseAndStart();
     </script>
 </body>
 </html>
